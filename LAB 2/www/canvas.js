@@ -7,6 +7,9 @@ var url = "img/man1-spritesheet.png";
 //images container
 var imgs = {};
 
+var mouse_pos = [0,0];
+var target_pos = [0,0];
+
 //example of images manager
 function getImage(url) {
 	//check if already loaded
@@ -25,7 +28,11 @@ for (let i = 0; i < 4; i++) {
 }
 
 var idle = [0];
-var walking = [2,3,4,5,6,7,8,9];
+var walking_right = [2,3,4,5,6,7,8,9];
+var walking_front = [18,19,20,21,22,23,24,25];
+var walking_left = [34,35,36,37,38,39,40,41];
+
+var selected_walking = walking_right;
 
 function renderAnimation( ctx, image, anim, x, y, scale, offset, flip )
 {
@@ -61,14 +68,41 @@ function draw(){
 
     ctx.clearRect(0,0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
+    if(mouse_pos[0] <= target_pos[0]){
+        selected_walking = walking_right;
+    } else{
+        selected_walking = walking_left;
+    }
+    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, mouse_pos[0], mouse_pos[1], 5, 0, false);
+    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], walking_right, 400, 500, 5, 0, false);
+    renderAnimation(ctx, imgs[Object.keys(imgs)[2]], walking_front, 700, 500, 5, 0, false);
+    renderAnimation(ctx, imgs[Object.keys(imgs)[3]],  walking_right, 1000, 500, 5, 0, true);
+}
 
-    var t = performance.now();
-    var i = Math.round(t) % walking.length;
-    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], walking, 100, 500, 5, 15, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], walking, 400, 500, 5, 0, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[2]], walking, 700, 500, 5, 30, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[3]], walking, 1000, 500, 5, 0, true);
-    console.log(imgs);
+function onMouse( event ) { 
+
+   var rect = canvas.getBoundingClientRect();
+   var canvasx =  event.clientX - rect.left;
+   var canvasy = event.clientY - rect.top;
+
+   if(event.type == "mousedown")
+   {
+        target_pos[0] = canvasx - 16*5;
+        target_pos[1] = canvasy - 32*5;
+   }
+   else if(event.type == "mousemove")
+   {
+
+   }
+   else //mouseup
+   {
+   }
+};
+
+//linear interpolation between two values
+function lerp(a,b,f)
+{
+	return a * (1-f) + b * f;
 }
 
 function update(dt){
@@ -80,8 +114,11 @@ var last = performance.now();
 
 function loop()
 {
-   draw();
 
+   mouse_pos[0] = lerp( mouse_pos[0], target_pos[0], 0.01 );
+   mouse_pos[1] = lerp( mouse_pos[1], target_pos[1], 0.01 );
+   
+   draw();
    //to compute seconds since last loop
    var now = performance.now();
    //compute difference and convert to seconds
@@ -95,7 +132,9 @@ function loop()
    //request to call loop() again before next frame
    requestAnimationFrame( loop );
 }
-
 //start loop
 loop();
 
+document.body.addEventListener("mousedown", onMouse );
+document.body.addEventListener("mousemove", onMouse );
+document.body.addEventListener("mouseup", onMouse );
