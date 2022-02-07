@@ -73,7 +73,7 @@ body {
 }
 
 #login input[type="name"],
-#login input[type="room"] {
+#login input[type="password"] {
   border: none;
   border-bottom: 1px solid var(--font-color);
   background: transparent;
@@ -116,13 +116,25 @@ body {
   overflow: hidden;
   background: url(img/room.png) no-repeat center top;
   position: relative;
-  border: 2px solid green;
-}
-
-#chatContainer {
-  border: 2px solid blue;
-}
-
-#canvas {
   border: 2px solid white;
+}
+
+#chatApp #chatContainer {
+  border: 2px solid white;
+  display: grid;
+  grid-template-rows: 60px calc(100% - 120px) 60px;
+}
+
+#chatApp #chatContainer .chatZone {
+  background: white;
+  border: 2px solid white;
+}
+
+#chatApp #chatContainer .textZone {
+  position: relative;
+  padding: 15px;
+  background: var(--background-color);
+  display: grid;
+  grid-template-columns: 4% 92% 4%;
+  border-bottom-right-radius: 15px;
 }

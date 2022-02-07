@@ -31,6 +31,7 @@ var idle = [0];
 var walking_right = [2,3,4,5,6,7,8,9];
 var walking_front = [18,19,20,21,22,23,24,25];
 var walking_left = [34,35,36,37,38,39,40,41];
+var stopped = [16];
 
 var selected_walking = walking_right;
 
@@ -68,13 +69,18 @@ function draw(){
 
     ctx.clearRect(0,0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
-    if(mouse_pos[0] <= target_pos[0]){
+    var diff = Math.abs( mouse_pos[0] - target_pos[0] );
+
+    if(mouse_pos[0] < target_pos[0] && diff > 20){
         selected_walking = walking_right;
-    } else{
+    } else if(mouse_pos[0] > target_pos[0] && diff > 20) {
         selected_walking = walking_left;
     }
+    else {
+        selected_walking = stopped;
+    }
     renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, mouse_pos[0], mouse_pos[1], 5, 0, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], walking_right, 400, 500, 5, 0, false);
+    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], stopped, 400, 500, 5, 0, false);
     renderAnimation(ctx, imgs[Object.keys(imgs)[2]], walking_front, 700, 500, 5, 0, false);
     renderAnimation(ctx, imgs[Object.keys(imgs)[3]],  walking_right, 1000, 500, 5, 0, true);
 }
@@ -135,6 +141,6 @@ function loop()
 //start loop
 loop();
 
-document.body.addEventListener("mousedown", onMouse );
-document.body.addEventListener("mousemove", onMouse );
-document.body.addEventListener("mouseup", onMouse );
+canvas.addEventListener("mousedown", onMouse );
+canvas.addEventListener("mousemove", onMouse );
+canvas.addEventListener("mouseup", onMouse );
