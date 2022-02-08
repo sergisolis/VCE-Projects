@@ -117,10 +117,13 @@ function displayMessageSend(message){   //crear un mensaje con el contenido envi
     var profile_name = document.createElement('h3');
     var text = document.createElement('span');
     profile_name.innerHTML = message.username;
-    text.innerHTML = msg.content;
+    text.innerHTML = message.content;
     message_div.className = "msg";
     profile_name.className = "profileName";
     text.className = message.type;
+    if (message.username == my_name){   
+        profile_name.style.color = "orange";
+    }
     message_div.appendChild(profile_name);
     message_div.appendChild(text);
     chat_zone_myself.appendChild(message_div);
@@ -142,7 +145,10 @@ async function setServer(socket){
         };
         
         sock.onmessage = function(event) {
-            console.log('Datos recibidos del servidor');
+            var msg = JSON.parse(event.data);
+            if (msg.username != my_name){
+                displayMessageSend(msg);
+            }
         };
         
         sock.onclose = function(event) {

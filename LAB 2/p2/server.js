@@ -57,9 +57,9 @@ wsServer.on('request', function(request) {
     var client = {
         user_id: "",
         username: "",
-        room: ""
+        password: ""
     }; 
-  
+    console.log("User in login");
     //initialize
     client.user_id = last_id;
     last_id++;
@@ -67,22 +67,28 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') { // accept only text
             // first message sent by user is their login
+            
              if (login === false) {
                 var msg = JSON.parse(message.utf8Data);
                 if (msg.type == "login"){
                     client.username = msg.username;
-                    client.room = msg.room;
+                    client.password = msg.password;
                     
-                    console.log( "NEW USER \n" + "user_id: " + client.user_id + " , username : " + client.username + " , room : " + client.room);
+                    console.log( "NEW USER \n" + "user_id: " + client.user_id + " , username : " + client.username + " , password : " + client.password);
                     connection.sendUTF("welcome!");
-                    clients.push(client);
+                    clients.push(connection);
                     login = true;
                 }
                 
               } else { // log and broadcast the message
-
+                
                 var msg = JSON.parse(message.utf8Data);
-		        console.log( "NEW MSG FROM USER " + msg.username + " : " + msg.content ); // process WebSocket message
+		            console.log( "NEW MSG FROM USER " + msg.username + " : " + msg.content ); // process WebSocket message
+                var send = JSON.stringify(msg)
+                for (let i = 0; i < clients.length; i++) {
+                  clients[i].sendUTF(send);
+                }
+                
               }
             }
     });
