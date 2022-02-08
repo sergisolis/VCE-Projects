@@ -3,7 +3,9 @@
 const http = require('http'),
       WebSocketServer = require('websocket').server,
       url = require('url'),
-      express = require('express');
+      express = require('express'),
+      fs = require('fs'),
+      users_json = "./users.json";
 
 
 //vars y const globales
@@ -43,6 +45,21 @@ function originIsAllowed(origin) {
     return false;
 }
 
+//helper function to read json
+function jsonReader(filePath, cb) {
+  fs.readFile(filePath, (err, fileData) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    try {
+      const object = JSON.parse(fileData);
+      return cb && cb(null, object);
+    } catch (err) {
+      return cb && cb(err);
+    }
+  });
+}
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
@@ -52,38 +69,66 @@ wsServer.on('request', function(request) {
       }
 
     var connection = request.accept(null, request.origin);
-    var login = false;
-      
+ 
     var client = {
-        user_id: "",
+        id: null,
         username: "",
-        password: ""
+        password: "",
+        room_id: null,
+        pos_x: null,
+        pos_y: null,
     }; 
     console.log("User in login");
-    //initialize
-    client.user_id = last_id;
+    //initialize Deprecated
+    client.id = last_id;
     last_id++;
 
     connection.on('message', function(message) {
         if (message.type === 'utf8') { // accept only text
             // first message sent by user is their login
             
-             if (login === false) {
                 var msg = JSON.parse(message.utf8Data);
                 if (msg.type == "login"){
+
                     client.username = msg.username;
                     client.password = msg.password;
-                    
-                    console.log( "NEW USER \n" + "user_id: " + client.user_id + " , username : " + client.username + " , password : " + client.password);
+                    //read json file, if user/pass exists load the last user data, if not, create the new user register with default values
+                    jsonReader(users_json, (err, users) => {
+                      if (err) {
+                        console.log(err);
+                        return;
+                      }
+                      var new_user = true;
+                      for(var i = 0; i<users.length;i++){
+                        if(users[i].username == client.username && users[i].password == client.password){
+                          new_user = false;
+                          client.id = users[i].id;
+                          client.room_id = users[i].room_id;
+                          client.pos_x = users[i].pos_x;
+                          client.pos_y = users[i].pos_y;
+                        }
+                      }
+                      if(new_user){
+                        client.id = users.length + 1;
+                        client.room_id = 1;
+                        client.pos_x = 0;
+                        client.pos_y = 0;
+                        users.push(client);
+                        fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
+                          if (err) {
+                              console.log('Error writing file', err)
+                          }
+                      });
+                      }
+                    });
+                    console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);
                     connection.sendUTF("welcome!");
                     clients.push(connection);
-                    login = true;
-                }
-                
-              } else { // log and broadcast the message
+
+                }else { // log and broadcast the message
                 
                 var msg = JSON.parse(message.utf8Data);
-		            console.log( "NEW MSG FROM USER " + msg.username + " : " + msg.content ); // process WebSocket message
+		            console.log( msg); // process WebSocket message
                 var send = JSON.stringify(msg)
                 for (let i = 0; i < clients.length; i++) {
                   clients[i].sendUTF(send);
@@ -101,7 +146,7 @@ wsServer.on('request', function(request) {
           login = true;
           for( var i = 0; i < clients.length; i++){ 
     
-            if ( clients[i].user_id == client.user_id) { 
+            if ( clients[i].id == client.id) { 
         
                 clients.splice(i, 1); 
             }
