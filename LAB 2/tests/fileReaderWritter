@@ -27,8 +27,7 @@ function jsonReader(filePath, cb) {
         "username":"root3",
         "password":"root3",
         "room_id":1,
-        "pos_x":0,
-        "pos_y":0
+        "pos_x":0
     }
     users.push(new_root);
     var  json_str = JSON.stringify(users,null,2 );

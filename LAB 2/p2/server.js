@@ -14,8 +14,6 @@ const port = 9026;
 const second_port = 9027;
 
 var clients = [ ];
-var db = {};
-var last_id = 1;
 var MAX_BUFFER = 100;
 
 //HTTP Server
@@ -76,12 +74,10 @@ wsServer.on('request', function(request) {
         password: "",
         room_id: null,
         pos_x: null,
-        pos_y: null,
+        avatar_id: null,
+        connection : connection
     }; 
     console.log("User in login");
-    //initialize Deprecated
-    client.id = last_id;
-    last_id++;
 
     connection.on('message', function(message) {
         if (message.type === 'utf8') { // accept only text
@@ -99,45 +95,48 @@ wsServer.on('request', function(request) {
                         return;
                       }
                       var new_user = true;
+                      //if user exists, load the last user data from the json file
                       for(var i = 0; i<users.length;i++){
                         if(users[i].username == client.username && users[i].password == client.password){
                           new_user = false;
                           client.id = users[i].id;
                           client.room_id = users[i].room_id;
                           client.pos_x = users[i].pos_x;
-                          client.pos_y = users[i].pos_y;
+                          client.avatar_id = msg.avatar_id;
                         }
                       }
-                      if(new_user){
+                      //if user not exist, create the new user register with default values
+                      if(new_user == true){
                         client.id = users.length + 1;
                         client.room_id = 1;
                         client.pos_x = 0;
-                        client.pos_y = 0;
-                        users.push(client);
+                        client.avatar_id = msg.avatar_id;
+                        var {avatar_id,connection, ...user} = client
+                        users.push(user);
                         fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
                           if (err) {
                               console.log('Error writing file', err)
                           }
                       });
                       }
+                      console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);        
                     });
-                    console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);
-                    connection.sendUTF("welcome!");
-                    clients.push(connection);
-
+                    clients.push(client);
                 }else { // log and broadcast the message
                 
                 var msg = JSON.parse(message.utf8Data);
 		            console.log( msg); // process WebSocket message
                 var send = JSON.stringify(msg)
                 for (let i = 0; i < clients.length; i++) {
-                  clients[i].sendUTF(send);
+                  if(clients[i].id != client.id){
+                      clients[i].connection.sendUTF(send);
+                  }
                 }
                 
               }
             }
     });
-
+    //User disconnected
     connection.on('close', function(connection) {
         if (login !== false ) {
 
