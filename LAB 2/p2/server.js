@@ -89,12 +89,12 @@ wsServer.on('request', function(request) {
                     client.username = msg.username;
                     client.password = msg.password;
                     //read json file, if user/pass exists load the last user data, if not, create the new user register with default values
+                    var new_user = true;
                     jsonReader(users_json, (err, users) => {
                       if (err) {
                         console.log(err);
                         return;
                       }
-                      var new_user = true;
                       //if user exists, load the last user data from the json file
                       for(var i = 0; i<users.length;i++){
                         if(users[i].username == client.username && users[i].password == client.password){
@@ -103,6 +103,7 @@ wsServer.on('request', function(request) {
                           client.room_id = users[i].room_id;
                           client.pos_x = users[i].pos_x;
                           client.avatar_id = msg.avatar_id;
+                          console.log("existe");
                         }
                       }
                       //if user not exist, create the new user register with default values
@@ -112,6 +113,7 @@ wsServer.on('request', function(request) {
                         client.pos_x = 0;
                         client.avatar_id = msg.avatar_id;
                         var {avatar_id,connection, ...user} = client
+                        console.log(user);
                         users.push(user);
                         fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
                           if (err) {
@@ -125,6 +127,7 @@ wsServer.on('request', function(request) {
                 }else { // log and broadcast the message
                 
                 var msg = JSON.parse(message.utf8Data);
+                msg.id =  client.id;
 		            console.log( msg); // process WebSocket message
                 var send = JSON.stringify(msg)
                 for (let i = 0; i < clients.length; i++) {
