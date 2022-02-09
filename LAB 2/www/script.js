@@ -156,10 +156,17 @@ async function setServer(socket){
                 var new_user = {};
                 new_user.id = msg.id;
                 new_user.position_x = msg.position_x;
-                new_user.position_y = msg.position_y;
                 addUserCanvas(new_user);
             }
-            
+            else if (msg.type == "position_history"){
+                for (let i = 0; i < msg.content.length; i++) {
+                    var previous_user = {};
+                    previous_user.id = msg.content[i].id;
+                    previous_user.position_x = msg.content[i].position_x;
+                    addUserCanvas(previous_user);
+                }
+                console.log(msg);
+            }
         };
         
         sock.onclose = function(event) {
@@ -187,7 +194,7 @@ function onMouse( event ) {
     {
          targetPosition(canvas_x, canvas_y)
          position_msg.position_x = canvas_x;
-         position_msg.position_y = canvas_y;
+         //position_msg.position_y = canvas_y;
          var pos_msg = JSON.stringify(position_msg);
          socket.send(pos_msg);   
     }

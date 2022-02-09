@@ -58,6 +58,16 @@ function jsonReader(filePath, cb) {
   });
 }
 
+//helper function to create position message
+function positionMessage(id, position){
+  var message = {
+    type:"position",
+    id: id,
+    position_x: position
+  }
+  return message;
+}
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
@@ -121,14 +131,39 @@ wsServer.on('request', function(request) {
                           }
                       });
                       }
-                      console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);        
-                    });
+                      console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);     
+                      //CALENTADITA
+                      //push new client into clients list
                     clients.push(client);
+                    //Array of other users position
+                    var clients_pos = {
+                      type:"position_history",
+                      content:[]
+                    };
+                    //Send my position to all other users of the room
+                    var my_position = positionMessage(client.id,client.pos_x);
+                    for (let i = 0; i < clients.length; i++) {
+                      console.log(clients[i]);
+                      if(clients[i].id != client.id && clients[i].room_id == client.room_id){
+                        console.log("enter loop");
+                        //Get position of all other users of the room
+                        var client_pos = positionMessage(clients[i].id, clients[i].pos_x);
+                        clients_pos.content.push(client_pos);
+                        //send message to other users of my position
+                        clients[i].connection.sendUTF(JSON.stringify(my_position));  
+                      }
+                    }
+                    console.log(clients_pos);
+                    //send message with all other users position
+                    client.connection.sendUTF(JSON.stringify(clients_pos));
+                    });
+                    
+
                 }else { // log and broadcast the message
                 
                 var msg = JSON.parse(message.utf8Data);
                 msg.id =  client.id;
-		            console.log( msg); // process WebSocket message
+		            //console.log( msg); // process WebSocket message
                 var send = JSON.stringify(msg)
                 for (let i = 0; i < clients.length; i++) {
                   if(clients[i].id != client.id){
@@ -154,7 +189,6 @@ wsServer.on('request', function(request) {
             }
         
         }
-          clients.splice
 
 
           // remove user from the list of connected clients

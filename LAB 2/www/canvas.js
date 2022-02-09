@@ -21,7 +21,7 @@ var imgs = {};
 
 var mouse_pos = [0,0];
 var target_pos = [0,0];
-var scale = 3;
+var scale = 7;
 var sprite_width = 32;
 var sprite_height = 64;
 
@@ -79,13 +79,14 @@ function renderFrame(ctx, image, frame, x, y, scale, flip)
 function checkdir(){
     var diff = Math.abs( mouse_pos[0] - target_pos[0] );
 
-    if(mouse_pos[0] < target_pos[0] && diff > 20){
+    if(mouse_pos[0] < target_pos[0] && diff > 30){
         selected_walking = walking_right;
-    } else if(mouse_pos[0] > target_pos[0] && diff > 20) {
+    } else if(mouse_pos[0] > target_pos[0] && diff > 30) {
         selected_walking = walking_left;
     }
     else {
         selected_walking = stopped;
+        mouse_pos[0] = target_pos[0];
     }
 }
 
@@ -100,15 +101,15 @@ function draw(){
     checkdir();
     mouse_pos[0] = lerp( mouse_pos[0], target_pos[0], 0.01 );
     mouse_pos[1] = lerp( mouse_pos[1], target_pos[1], 0.01 );
-    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, mouse_pos[0], mouse_pos[1], scale, 0, false);
+    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], selected_walking, mouse_pos[0], 450, scale, 0, false);
     
 }
 
 function draw_other(id){
 
     users[id].previous_x = lerp( users[id].previous_x, users[id].position_x, 0.01 );
-    users[id].previous_y = lerp( users[id].previous_y, users[id].position_y, 0.01 );
-    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, users[id].previous_x, users[id].previous_y, scale, 0, false);
+    //users[id].previous_y = lerp( users[id].previous_y, users[id].position_y, 0.01 );
+    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], selected_walking, users[id].previous_x, 600, scale, 0, false);
 }
 
 //linear interpolation between two values
@@ -153,9 +154,9 @@ function addUserCanvas(user){
     var userIndex = users.findIndex((obj => obj.id == user.id));
     if (userIndex == -1){   //user don't exist in the canvas
         user.previous_x = 0;
-        user.previous_y = 0;
+        //user.previous_y = 0;
         user.position_x = user.position_x - (sprite_width / 2 * scale);
-        user.position_y = user.position_y - (sprite_height / 2 * scale);
+        //user.position_y = user.position_y - (sprite_height / 2 * scale);
         users.push(user);
         console.log("new user in canvas with id: " + user.id);
     }
@@ -163,7 +164,7 @@ function addUserCanvas(user){
         //users[userIndex].previous_x = users[userIndex].position_x;
         //users[userIndex].previous_y = users[userIndex].position_y;
         users[userIndex].position_x = user.position_x - (sprite_width / 2 * scale);
-        users[userIndex].position_y = user.position_y - (sprite_height / 2 * scale);
+        //users[userIndex].position_y = user.position_y - (sprite_height / 2 * scale);
     }
     console.log(user);
 }

@@ -113,7 +113,8 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: url(img/room.png) no-repeat center top;
+  background: url(img/room.jpg) no-repeat center;
+  background-size: 1344px 969px;
   position: relative;
 }
 
