@@ -104,16 +104,11 @@ function draw(){
     
 }
 
-function draw_other(pos_x,pos_y){
-    var previous_x;
-    var previous_y;
-    if (previous_x == null && previous_y == null){
-        previous_x = 0;
-        previous_y = 0;
-    }
-    previous_x = lerp( previous_x, pos_x, 0.01 );
-    previous_y = lerp( previous_y,pos_y, 0.01 );
-    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, previous_x, previous_y, scale, 0, false);
+function draw_other(id){
+
+    users[id].previous_x = lerp( users[id].previous_x, users[id].position_x, 0.01 );
+    users[id].previous_y = lerp( users[id].previous_y, users[id].position_y, 0.01 );
+    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, users[id].previous_x, users[id].previous_y, scale, 0, false);
 }
 
 //linear interpolation between two values
@@ -133,11 +128,13 @@ function loop()
 {
 
    draw();
-   /*
-   if(users != []){
-        draw_other(users[0].position_x,users[0].position_y);
+
+   if(users.length){
+        for (let i = 0; i < users.length; i++) {
+            draw_other(i);
+        }  
    }
-   */
+
    //to compute seconds since last loop
    var now = performance.now();
    //compute difference and convert to seconds
@@ -153,7 +150,21 @@ function loop()
 }
 
 function addUserCanvas(user){
-    users.push(user);
+    var userIndex = users.findIndex((obj => obj.id == user.id));
+    if (userIndex == -1){   //user don't exist in the canvas
+        user.previous_x = 0;
+        user.previous_y = 0;
+        user.position_x = user.position_x - (sprite_width / 2 * scale);
+        user.position_y = user.position_y - (sprite_height / 2 * scale);
+        users.push(user);
+        console.log("new user in canvas with id: " + user.id);
+    }
+    else{       //user already exist in the canvas
+        //users[userIndex].previous_x = users[userIndex].position_x;
+        //users[userIndex].previous_y = users[userIndex].position_y;
+        users[userIndex].position_x = user.position_x - (sprite_width / 2 * scale);
+        users[userIndex].position_y = user.position_y - (sprite_height / 2 * scale);
+    }
     console.log(user);
 }
 
@@ -163,7 +174,7 @@ function deleteCanvas(user){
 
 function targetPosition(canvas_x, canvas_y){
     target_pos[0] = canvas_x - (sprite_width / 2 * scale);
-    target_pos[1] = canvas_y - (sprite_height/2 * scale);
+    target_pos[1] = canvas_y - (sprite_height / 2 * scale);
 }
 
 //start loop

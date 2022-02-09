@@ -35,9 +35,6 @@ var login_msg = {
 
 var position_msg = {
     type: "position",
-    user_id : "my_id",
-	position_x : 0,
-	position_y:  0
 };
 
 var users = [];
@@ -144,6 +141,7 @@ async function setServer(socket){
             console.log("Enviando al servidor");
             login_msg.username = my_name;
             login_msg.password = my_password;
+            login_msg.avatar_id = 1;
             var msg = JSON.stringify(login_msg);
             sock.send(msg)
         };
@@ -155,11 +153,8 @@ async function setServer(socket){
             }
             
             else if (msg.type == "position"){
-                var new_user = {
-                    user_id : "my_id",
-	                position_x : null,
-	                position_y:  null
-                };
+                var new_user = {};
+                new_user.id = msg.id;
                 new_user.position_x = msg.position_x;
                 new_user.position_y = msg.position_y;
                 addUserCanvas(new_user);
@@ -191,8 +186,8 @@ function onMouse( event ) {
     if(event.type == "mousedown")
     {
          targetPosition(canvas_x, canvas_y)
-         position_msg.postion_x = canvas_x;
-         position_msg.postion_y = canvas_y;
+         position_msg.position_x = canvas_x;
+         position_msg.position_y = canvas_y;
          var pos_msg = JSON.stringify(position_msg);
          socket.send(pos_msg);   
     }
