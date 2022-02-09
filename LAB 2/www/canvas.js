@@ -1,3 +1,15 @@
+// =========================================================================
+// =========================================================================
+// =========================================================================
+// =========================================================================
+// CANVAS
+// =========================================================================
+// =========================================================================
+// =========================================================================
+// =========================================================================
+
+var users = [];
+
 const canvas_container = document.querySelector("#canvasContainer");
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext('2d');
@@ -9,6 +21,9 @@ var imgs = {};
 
 var mouse_pos = [0,0];
 var target_pos = [0,0];
+var scale = 3;
+var sprite_width = 32;
+var sprite_height = 64;
 
 //example of images manager
 function getImage(url) {
@@ -61,14 +76,7 @@ function renderFrame(ctx, image, frame, x, y, scale, flip)
 	ctx.restore();
 }
 
-function draw(){
-    var parent = canvas.parentNode;
-	var rect = parent.getBoundingClientRect();
-	canvas.height = canvas_container.clientHeight;
-    canvas.width = canvas_container.clientWidth;
-
-    ctx.clearRect(0,0, canvas.width, canvas.height);
-    ctx.imageSmoothingEnabled = false;
+function checkdir(){
     var diff = Math.abs( mouse_pos[0] - target_pos[0] );
 
     if(mouse_pos[0] < target_pos[0] && diff > 20){
@@ -79,31 +87,34 @@ function draw(){
     else {
         selected_walking = stopped;
     }
-    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, mouse_pos[0], mouse_pos[1], 5, 0, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[1]], stopped, 400, 500, 5, 0, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[2]], walking_front, 700, 500, 5, 0, false);
-    renderAnimation(ctx, imgs[Object.keys(imgs)[3]],  walking_right, 1000, 500, 5, 0, true);
 }
 
-function onMouse( event ) { 
+function draw(){
+    canvas.height = canvas_container.clientHeight;
+    canvas.width = canvas_container.clientWidth;
 
-   var rect = canvas.getBoundingClientRect();
-   var canvasx =  event.clientX - rect.left;
-   var canvasy = event.clientY - rect.top;
+	// borra contenido dibujado anteriormente
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = false;
+    
+    checkdir();
+    mouse_pos[0] = lerp( mouse_pos[0], target_pos[0], 0.01 );
+    mouse_pos[1] = lerp( mouse_pos[1], target_pos[1], 0.01 );
+    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, mouse_pos[0], mouse_pos[1], scale, 0, false);
+    
+}
 
-   if(event.type == "mousedown")
-   {
-        target_pos[0] = canvasx - 16*5;
-        target_pos[1] = canvasy - 32*5;
-   }
-   else if(event.type == "mousemove")
-   {
-
-   }
-   else //mouseup
-   {
-   }
-};
+function draw_other(pos_x,pos_y){
+    var previous_x;
+    var previous_y;
+    if (previous_x == null && previous_y == null){
+        previous_x = 0;
+        previous_y = 0;
+    }
+    previous_x = lerp( previous_x, pos_x, 0.01 );
+    previous_y = lerp( previous_y,pos_y, 0.01 );
+    renderAnimation(ctx, imgs[Object.keys(imgs)[0]], selected_walking, previous_x, previous_y, scale, 0, false);
+}
 
 //linear interpolation between two values
 function lerp(a,b,f)
@@ -121,10 +132,12 @@ var last = performance.now();
 function loop()
 {
 
-   mouse_pos[0] = lerp( mouse_pos[0], target_pos[0], 0.01 );
-   mouse_pos[1] = lerp( mouse_pos[1], target_pos[1], 0.01 );
-   
    draw();
+   /*
+   if(users != []){
+        draw_other(users[0].position_x,users[0].position_y);
+   }
+   */
    //to compute seconds since last loop
    var now = performance.now();
    //compute difference and convert to seconds
@@ -138,9 +151,23 @@ function loop()
    //request to call loop() again before next frame
    requestAnimationFrame( loop );
 }
+
+function addUserCanvas(user){
+    users.push(user);
+    console.log(user);
+}
+
+function deleteCanvas(user){
+    users.splice(user, 1);
+}
+
+function targetPosition(canvas_x, canvas_y){
+    target_pos[0] = canvas_x - (sprite_width / 2 * scale);
+    target_pos[1] = canvas_y - (sprite_height/2 * scale);
+}
+
 //start loop
 loop();
 
-canvas.addEventListener("mousedown", onMouse );
-canvas.addEventListener("mousemove", onMouse );
-canvas.addEventListener("mouseup", onMouse );
+
+
