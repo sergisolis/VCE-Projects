@@ -59,14 +59,56 @@ function jsonReader(filePath, cb) {
 }
 
 //helper function to create position message
-function positionMessage(id, position){
+function positionMessage(id, position, username){
   var message = {
     type:"position",
     id: id,
+    username: username,
     position_x: position
   }
   return message;
 }
+
+//helper function to send message to all other users of the same room
+function sendMessageToRoom(client,msg){
+  for (let i = 0; i < clients.length; i++) {
+    if(clients[i].id != client.id && clients[i].room_id == client.room_id){
+      clients[i].connection.sendUTF(JSON.stringify(msg));
+    }
+  }
+}
+//helper function to collect positions of the other users and send my position (used on login and change_room)
+function collectPositionsOfRoom(client){
+  //Array of other users position
+  var clients_pos = {
+    id: client.id,
+    type:"position_history",
+    content:[]
+  };
+
+  //Send my position to all other users of the room
+  var my_position = positionMessage(client.id,client.pos_x,client.username);
+  for (let i = 0; i < clients.length; i++) {
+    if(clients[i].id != client.id && clients[i].room_id == client.room_id){
+      //Get position of all other users of the room
+      var client_pos = positionMessage(clients[i].id, clients[i].pos_x, clients[i].username);
+      clients_pos.content.push(client_pos);
+      //send message to other users of my position
+      clients[i].connection.sendUTF(JSON.stringify(my_position));  
+    }
+  }
+  //send message with all other users position
+  client.connection.sendUTF(JSON.stringify(clients_pos));
+}
+
+//Helper function to fill the client with the data
+function fillClient(client,id,room_id,pos_x,avatar_id){
+  client.id = id;
+  client.room_id = room_id;
+  client.pos_x = pos_x;
+  client.avatar_id = avatar_id;
+}
+
 
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
@@ -77,6 +119,7 @@ wsServer.on('request', function(request) {
       }
 
     var connection = request.accept(null, request.origin);
+    var login  = false;
  
     var client = {
         id: null,
@@ -92,7 +135,6 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') { // accept only text
             // first message sent by user is their login
-            
                 var msg = JSON.parse(message.utf8Data);
                 if (msg.type == "login"){
 
@@ -109,21 +151,15 @@ wsServer.on('request', function(request) {
                       for(var i = 0; i<users.length;i++){
                         if(users[i].username == client.username && users[i].password == client.password){
                           new_user = false;
-                          client.id = users[i].id;
-                          client.room_id = users[i].room_id;
-                          client.pos_x = users[i].pos_x;
-                          client.avatar_id = msg.avatar_id;
-                          console.log("existe");
+                          fillClient(client,users[i].id, users[i].room_id, users[i].pos_x, msg.avatar_id);
+                          console.log( "LOADED USER  \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);  
                         }
                       }
                       //if user not exist, create the new user register with default values
                       if(new_user == true){
-                        client.id = users.length + 1;
-                        client.room_id = 1;
-                        client.pos_x = 0;
-                        client.avatar_id = msg.avatar_id;
+                        fillClient(users.length + 1, 1, 0, msg.avatar_id) //default values room_id:1 and pos_x:0
                         var {avatar_id,connection, ...user} = client
-                        console.log(user);
+                        console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);     
                         users.push(user);
                         fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
                           if (err) {
@@ -131,48 +167,32 @@ wsServer.on('request', function(request) {
                           }
                       });
                       }
-                      console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);     
                       //CALENTADITA
                       //push new client into clients list
                     clients.push(client);
-                    //Array of other users position
-                    var clients_pos = {
-                      type:"position_history",
-                      content:[]
-                    };
-                    //Send my position to all other users of the room
-                    var my_position = positionMessage(client.id,client.pos_x);
-                    for (let i = 0; i < clients.length; i++) {
-                      console.log(clients[i]);
-                      if(clients[i].id != client.id && clients[i].room_id == client.room_id){
-                        console.log("enter loop");
-                        //Get position of all other users of the room
-                        var client_pos = positionMessage(clients[i].id, clients[i].pos_x);
-                        clients_pos.content.push(client_pos);
-                        //send message to other users of my position
-                        clients[i].connection.sendUTF(JSON.stringify(my_position));  
-                      }
-                    }
-                    console.log(clients_pos);
-                    //send message with all other users position
-                    client.connection.sendUTF(JSON.stringify(clients_pos));
+                    login = true;
+                    collectPositionsOfRoom(client);
                     });
-                    
+                }else if (msg.type == "text" ){ // log and broadcast the message  
+                //var msg = JSON.parse(message.utf8Data);
+               // msg.id =  client.id;
+		            console.log( msg); // process WebSocket message
+                sendMessageToRoom(client,msg);
 
-                }else { // log and broadcast the message
-                
-                var msg = JSON.parse(message.utf8Data);
-                msg.id =  client.id;
-		            //console.log( msg); // process WebSocket message
-                var send = JSON.stringify(msg)
-                for (let i = 0; i < clients.length; i++) {
-                  if(clients[i].id != client.id){
-                      clients[i].connection.sendUTF(send);
-                  }
-                }
-                
-              }
-            }
+             }else if (msg.type == "position"){
+               //upload to new position
+               client.pos_x = msg.pos_x;
+               var my_position = positionMessage(client.id,client.pos_x,client.username);
+               //Send new position to all other users of the room
+               sendMessageToRoom(client,my_position);
+
+             }else if(msg.type == "change_room"){
+              //upload to new room/position
+              client.pos_x = msg.pos_x;
+              client.room_id = msg.room_id;
+              collectPositionsOfRoom(client);
+             }
+         }
     });
     //User disconnected
     connection.on('close', function(connection) {
