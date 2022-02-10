@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css">
+
+    
+
     <title>Habbito</title>
 </head>
 <body>
+    <span id="loader" style="font-family: VT323;"></span>
     <!-- Login -->
-    <div id="login" >
+    <div id="login">
         <h3>Habbito</h3>
         <!-- Username Input -->
         <label for="username">Username</label>
@@ -23,7 +27,7 @@
         <input class="loginSubmit" type="submit" value="Log In">        
     </div>    
     <!-- Chat -->
-    <div  id="chatApp"  style="display: none;">
+    <div  id="chatApp" style="display: none;">
         <div id="canvasContainer">
             <canvas id="canvas"></canvas>
         </div>
@@ -75,8 +79,14 @@
         </div>
     </div>
     <script src="https://kit.fontawesome.com/ce7a96ef8c.js" crossorigin="anonymous"></script>
-    <script src="canvas.js"></script>
-    <script src="script.js"></script>
+
+    <script src="core.js"></script>
+    <script src="logic.js"></script>
+    <script src="client.js"></script>
+    <script src="gfx.js"></script>
+    <script src="world.js"></script>
+
+    <script>CORE.init();</script>
     
     
 </body>
