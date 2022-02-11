@@ -36,6 +36,8 @@ wsServer = new WebSocketServer({ // create the server
     httpServer: server //if we already have our HTTPServer in server variable...
 });
 
+//FUNCTIONS
+
 function originIsAllowed(origin) {
     if(origin === "https://ecv-etic.upf.edu"){
         return true;
@@ -110,6 +112,7 @@ function fillClient(client,id,room_id,pos_x,avatar_id){
   client.avatar_id = avatar_id;
 }
 
+//When someone enter on our webscoket 
 
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
@@ -233,8 +236,8 @@ wsServer.on('request', function(request) {
             }
             else {
               var disconnected = {
-                type:"", //DEFINIR TIPO
-                content: client.username + " has disconnected from Habbito"
+                type:"room", //DEFINIR TIPO
+                content: client.username + " has disconnected"
               }
               clients[i].connection.sendUTF(JSON.stringify(disconnected));
             }

@@ -83,12 +83,28 @@ var WORLD = {
 
     init: function()
     {
-        this.loadWorld( world_demo );
+        //this.loadWorld( world_demo );
         this.local_user = this.createUser();
         this.rooms[0].enterUser( this.local_user);
     },
 
-    loadWorld: function(json){
+    toJSON: function(){
+        var o = {
+            rooms: []
+        };
+        for(var i=0; i < this.rooms.length; i++){
+            var room = this.rooms[i];
+            o.rooms.push (room.toJSON());
+        }
+        return o;
+    },
+
+    fromJSON: function(json){
+        
+        console.log("loading world");
+        if(!json)
+            json = world_demo;
+
         for (var i = 0; i < json.rooms.length; i++){
             var room_json = json.rooms[i];
             var room = new Room();

@@ -1,3 +1,5 @@
+const { WORLD } = require("./world");
+
 var LOGIC = {
     input_text: null,
     send_button: null,
@@ -84,6 +86,13 @@ var LOGIC = {
             GFX.displayText(msg, CLIENT.name);
         }else if (msg.type == "position"){
 
+        }
+        if (msg.type == "world"){
+            WORLD.fromJSON(data.world);
+        }
+
+        if (msg.type == "login"){
+            WORLD.local_user.fromJSON(msg.user);
         }
         /*
         if ( msg.type == "text"){
