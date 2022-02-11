@@ -109,4 +109,11 @@ var WORLD = {
 
 };
 
-CORE.modules.push(WORLD);
+//CORE.modules.push(WORLD);
+if ( typeof (module) != "undefined" ){
+    module.exports = {
+        User,
+        Room,
+        WORLD
+    }
+}

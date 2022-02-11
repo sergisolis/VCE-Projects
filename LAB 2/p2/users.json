@@ -5,26 +5,5 @@
     "password": "root",
     "room_id": 1,
     "pos_x": 0
-  },
-  {
-    "id": 2,
-    "username": "a",
-    "password": "a",
-    "room_id": 1,
-    "pos_x": 0
-  },
-  {
-    "id": 3,
-    "username": "b",
-    "password": "a",
-    "room_id": 1,
-    "pos_x": 0
-  },
-  {
-    "id": 4,
-    "username": "dfszdg",
-    "password": "q",
-    "room_id": 1,
-    "pos_x": 0
   }
 ]

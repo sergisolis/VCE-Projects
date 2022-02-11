@@ -59,12 +59,13 @@ function jsonReader(filePath, cb) {
 }
 
 //helper function to create position message
-function positionMessage(id, position, username){
+function positionMessage(id, position, username, avatar_id){
   var message = {
     type:"position",
     id: id,
     username: username,
-    position_x: position
+    position_x: position,
+    avatar_id: avatar_id
   }
   return message;
 }
@@ -82,16 +83,16 @@ function collectPositionsOfRoom(client){
   //Array of other users position
   var clients_pos = {
     id: client.id,
-    type:"position_history",
+    type:"room",
     content:[]
   };
 
   //Send my position to all other users of the room
-  var my_position = positionMessage(client.id,client.pos_x,client.username);
+  var my_position = positionMessage(client.id,client.pos_x,client.username,client.avatar_id);
   for (let i = 0; i < clients.length; i++) {
     if(clients[i].id != client.id && clients[i].room_id == client.room_id){
       //Get position of all other users of the room
-      var client_pos = positionMessage(clients[i].id, clients[i].pos_x, clients[i].username);
+      var client_pos = positionMessage(clients[i].id, clients[i].pos_x, clients[i].username, clients[i].avatar_id);
       clients_pos.content.push(client_pos);
       //send message to other users of my position
       clients[i].connection.sendUTF(JSON.stringify(my_position));  
@@ -157,7 +158,7 @@ wsServer.on('request', function(request) {
                       }
                       //if user not exist, create the new user register with default values
                       if(new_user == true){
-                        fillClient(users.length + 1, 1, 0, msg.avatar_id) //default values room_id:1 and pos_x:0
+                        fillClient(client,users.length + 1, 1, 0, msg.avatar_id) //default values room_id:1 and pos_x:0
                         var {avatar_id,connection, ...user} = client
                         console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);     
                         users.push(user);
@@ -182,8 +183,9 @@ wsServer.on('request', function(request) {
              }else if (msg.type == "position"){
                //upload to new position
                client.pos_x = msg.pos_x;
-               var my_position = positionMessage(client.id,client.pos_x,client.username);
+               var my_position = positionMessage(client.id,client.pos_x,client.username,client.avatar_id);
                //Send new position to all other users of the room
+               console.log(my_position)
                sendMessageToRoom(client,my_position);
 
              }else if(msg.type == "change_room"){
@@ -196,21 +198,47 @@ wsServer.on('request', function(request) {
     });
     //User disconnected
     connection.on('close', function(connection) {
+
         if (login !== false ) {
 
-          console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
+          //console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
           
-          login = true;
+          //login = true;
+          //update user on json file
+          jsonReader(users_json, (err, users) => {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              //get the user and change the variable attributes
+              for(var i = 0; i<users.length;i++){
+                if(users[i].id == client.id ){
+                  users[i].room_id = client.room_id;
+                  users[i].pos_x = client.pos_x;
+                }
+              }
+              fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
+                if (err) {
+                    console.log('Error writing file', err)
+                }
+            });
+          });
+          console.log("DISCONNECTED  \n" + "id: " + client.id + " , username : " + client.username );
+          //find the user in clients array to remove it
           for( var i = 0; i < clients.length; i++){ 
     
             if ( clients[i].id == client.id) { 
         
                 clients.splice(i, 1); 
             }
-        
-        }
-
-
+            else {
+              var disconnected = {
+                type:"", //DEFINIR TIPO
+                content: client.username + " has disconnected from Habbito"
+              }
+              clients[i].connection.sendUTF(JSON.stringify(disconnected));
+            }
+         }
           // remove user from the list of connected clients
           //clients.splice(index, 1);
         }
