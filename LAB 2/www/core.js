@@ -6,6 +6,7 @@ var CORE = {
     login_button: null,
     mouse_pos: [0,0],
     
+    modules: [],
    
     //settings
     server_url: "wss://ecv-etic.upf.edu/node/9026/ws/",

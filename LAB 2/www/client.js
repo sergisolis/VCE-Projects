@@ -7,8 +7,8 @@ var CLIENT = {
         this.server = server;
         this.name = name;
         this.password = password;
-        this.server.onmessage = this.processMessage.bind(this); 
         this.server.onopen = this.setServer.bind(this);
+        this.server.onmessage = this.processMessage.bind(this); 
     },
 
     setServer: function(e){
@@ -29,25 +29,8 @@ var CLIENT = {
     processMessage: function(e){
         var msg = JSON.parse(e.data);
         console.log("RECEIVED: " + e.data);
-        /*
-        if ( msg.type == "text"){
-            displayMessageSend(msg);
-        }    
-        else if (msg.type == "position"){
-            var new_user = {};
-            new_user.id = msg.id;
-            new_user.position_x = msg.position_x;
-            addUserCanvas(new_user);
-        }
-        else if (msg.type == "position_history"){
-            for (let i = 0; i < msg.content.length; i++) {
-                var previous_user = {};
-                previous_user.id = msg.content[i].id;
-                previous_user.position_x = msg.content[i].position_x;
-                addUserCanvas(previous_user);
-            }
-        }
-        */
+        LOGIC.onMessage(msg)
+        
     },
     send: function(data, type)
     {
@@ -55,3 +38,5 @@ var CLIENT = {
         this.server.send(msg);
     }
 };
+
+CORE.modules.push(CLIENT);

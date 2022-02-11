@@ -62,22 +62,49 @@ var LOGIC = {
         if(this.input_text){
             this.input_text.value = "";
             
-            this.addMessage(str);
+            this.addText(str);
         }
     },
-    addMessage: function(str)
+    addText: function(str)
     {
         var msg = {
+            type: "text",
             content: "",
             name: ""
         }
         msg.content = str;
         msg.name = CLIENT.name;
-        GFX.displayMessage(msg, CLIENT.name);
+        CLIENT.server.send(JSON.stringify(msg));
+        GFX.displayText(msg, CLIENT.name);
+
+    },
+    onMessage: function(msg)
+    {
+        if ( msg.type == "text"){
+            GFX.displayText(msg, CLIENT.name);
+        }else if (msg.type == "position"){
+
+        }
         /*
-        msg.type = "text"
-        var str_msg = JSON.stringify(msg);
-        socket.send(str_msg);
+        if ( msg.type == "text"){
+            displayMessageSend(msg);
+        }    
+        else if (msg.type == "position"){
+            var new_user = {};
+            new_user.id = msg.id;
+            new_user.position_x = msg.position_x;
+            addUserCanvas(new_user);
+        }
+        else if (msg.type == "position_history"){
+            for (let i = 0; i < msg.content.length; i++) {
+                var previous_user = {};
+                previous_user.id = msg.content[i].id;
+                previous_user.position_x = msg.content[i].position_x;
+                addUserCanvas(previous_user);
+            }
+        }
         */
     }
 }
+
+CORE.modules.push(LOGIC);
