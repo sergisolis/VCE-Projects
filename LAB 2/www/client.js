@@ -12,7 +12,7 @@ var CLIENT = {
     },
 
     setServer: function(e){
-        console.log("Conexión establecida");
+       /* console.log("Conexión establecida");
         console.log("Enviando al servidor");
         var login_msg = {
             type: "login",
@@ -23,18 +23,21 @@ var CLIENT = {
         login_msg.password = this.password;
         login_msg.avatar_id = 1;
         var msg = JSON.stringify(login_msg);
-        this.server.send(msg)
+        this.server.send(msg)*/
     },
 
     processMessage: function(e){
         var msg = JSON.parse(e.data);
-        console.log("RECEIVED: " + e.data);
+        //console.log("RECEIVED: " + e.data);
         LOGIC.onMessage(msg)
         
     },
-    send: function(data, type)
+    send: function(data)
     {
-        var msg = JSON.stringify({type: type, content:data});
+        if(!this.server){
+            return;
+        }
+        var msg = JSON.stringify(data);
         this.server.send(msg);
     }
 };

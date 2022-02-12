@@ -1,4 +1,4 @@
-const { WORLD } = require("./world");
+const { WORLD, Room, User } = require("./world");
 
 var LOGIC = {
     input_text: null,
@@ -10,6 +10,9 @@ var LOGIC = {
         //bind events
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
+
+        //test tick
+        setInterval(this.tick.bind(this), 100);
     },
 
     update: function(dt){
@@ -18,6 +21,16 @@ var LOGIC = {
             //WORLD.local_user.position[0] = this.lerp( WORLD.local_user.position[0], WORLD.local_user.target_position[0], 0.01 );
             this.updateUserInput(dt, WORLD.local_user);
         }
+    },
+
+    tick: function(){
+        if(WORLD.local_user){
+        var update = {
+            type: "user_update",
+            user: WORLD.local_user.toJSON()
+        }
+        CLIENT.send(JSON.stringify(update));
+    }
     },
 
     lerp: function(a,b,f)
@@ -80,20 +93,53 @@ var LOGIC = {
         GFX.displayText(msg, CLIENT.name);
 
     },
+    UpdateUserInfo: function(user_info){
+        var user = WORLD.users_by_id[user_info.id];
+        if(!user)
+        {
+            user = new User();
+            WORLD.users.push (user);
+            WORLD.users_by_id[user_info.id] =  user;
+        }
+        user.fromJSON(user_info, true);
+        return user;
+    },
     onMessage: function(msg)
     {
+        if (msg.type == "login"){
+
+            WORLD.local_user = this.UpdateUserInfo(msg.user);
+        }
+        if (msg.type == "room"){
+            var room = WORLD.rooms[msg.room.id];
+            if(!room){
+                room = new Room();
+                WORLD.rooms[msg.room.id] = room;
+            }
+            room.fromJSON( data.room);
+        }
         if ( msg.type == "text"){
             GFX.displayText(msg, CLIENT.name);
-        }else if (msg.type == "position"){
+        }
+        if (msg.type == "users"){
 
+            var room = WORLD.rooms[ msg.room_id];
+            if(room){
+                for(var i=0; i < msg.users.length; i++){
+                    var user_info = msg.users[i];
+                    if(WORLD.local_user &&  user_info.id == WORLD.local_user.id){
+                        continue;   
+                    }
+                    var user = this.UpdateUserInfo(user_info);
+                    if(!room.isUserInside(user)){
+                        room.enterUser(user);
+                    }
+                }
         }
-        if (msg.type == "world"){
-            WORLD.fromJSON(data.world);
-        }
+     }
+       
 
-        if (msg.type == "login"){
-            WORLD.local_user.fromJSON(msg.user);
-        }
+    
         /*
         if ( msg.type == "text"){
             displayMessageSend(msg);

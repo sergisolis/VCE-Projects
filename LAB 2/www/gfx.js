@@ -1,7 +1,9 @@
-var FACE_RIGHT = 0;
+const { WORLD } = require("./world");
+
+/*var FACE_RIGHT = 0;
 var FACE_BOTTOM = 1;
 var FACE_LEFT = 2;
-var FACE_UP = 3;
+var FACE_UP = 3;*/
 
 var ANIMS = {
     idle: [0],
@@ -39,10 +41,22 @@ var GFX = {
     },
 
     draw: function(){
-        this.drawRoom(this.canvas, WORLD.local_user);
+
+        var canvas = this.canvas;
+        canvas.width = canvas.parentNode.offsetWidth;
+        canvas.height = canvas.parentNode.offsetHeight;
+        ctx = canvas.getContext("2d");
+
+        if(WORLD.local_user){
+             this.drawRoom(ctx, WORLD.local_user);
+        }else{
+                ctx.fillStyle = "white";
+                ctx.font = "40px Arial"
+                ctx.fillText ("Connecting...",100,100);
+        }
     },
 
-    drawCharacter: function (sprites, user)
+    drawCharacter: function (ctx, sprites, user)
     {
         var w = 32; //sprite width
 	    var h = 64; //sprite height
@@ -52,6 +66,7 @@ var GFX = {
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
         ctx.drawImage(sprites, frame_index*32, row, 32, 64, user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
+        user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
 
         ctx.font = "50px VT323";
         ctx.fillStyle = "white";
@@ -59,12 +74,10 @@ var GFX = {
         ctx.fillText("user1", user.position[0] + (this.sprite_width / 2 * this.scale), 640);
     },
 
-    drawRoom: function(canvas, main_user)
+    drawRoom: function(ctx, main_user)
     {
+        var canvas = ctx.canvas;
         var t = performance.now() * 0.001;
-        canvas.width = canvas.parentNode.offsetWidth;
-        canvas.height = canvas.parentNode.offsetHeight;
-        ctx = canvas.getContext("2d");
         var centerx = canvas.width * 0.5;
         var centery = canvas.height * 0.5;
         
@@ -76,7 +89,7 @@ var GFX = {
         ctx.save();
         //ctx.translate(centerx,centery - bg.height * 0.5);
 
-        var room = WORLD.rooms[main_user.room_index];
+        var room = WORLD.rooms[main_user.room_id];
         if (!room)
         {
            return; 
@@ -95,14 +108,14 @@ var GFX = {
         for (var i = 0; i < room.users.length; i++)
         {
             var user_index = room.users[i];
-            var user = WORLD.users[ user_index ];
+            var user = WORLD.users_by_id[ user_index ];
 
             if(!user){
                 continue;
             }
 
             var sprites = getImage("img/man1-spritesheet.png");
-            this.drawCharacter(sprites, user)
+            this.drawCharacter(ctx, sprites, user)
             
         }
         
