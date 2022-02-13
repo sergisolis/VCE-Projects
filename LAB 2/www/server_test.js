@@ -111,7 +111,7 @@ function onUserDisconnected(user){
             delete WORLD.users_by_id[user.id];
         }
         console.log("USER IS GONE!");
-        var room = WORLD.rooms[user.id];
+        var room = WORLD.rooms[user.room_id];
         if(room){
             room.leaveUser(user);
         } else{
