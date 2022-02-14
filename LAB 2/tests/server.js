@@ -31,11 +31,12 @@ wsServer = new WebSocketServer({ // create the server
     httpServer: server //if we already have our HTTPServer in server variable...
 });
 
+const { strictEqual } = require('assert');
 //import world
 var world = require('./world.js');
 var WORLD = world.WORLD;
 
-var last_id = 0; //provisional --> change to json file etc..
+//var last_id = 0; //provisional --> change to json file etc..
 
 //create world
 WORLD.fromJSON();
@@ -63,9 +64,9 @@ function onUserMessage(user,message){
     if(msg.type == "login"){
         createUser(user,msg);
     }
-    /*if(msg.type == "user_update"){
+    if(msg.type == "user_update"){
         user.fromJSON(msg.user);
-    }*/
+    }
    if(msg.type == "text"){
         console.log(msg);
         sendMessageRoom(user,msg);
@@ -86,16 +87,42 @@ function sendMessageRoom(my_user, msg ){
 }
 
 function createUser(user,msg){
+    var new_user = true;
+    var file_data = readFileJSON();
+    if(file_data){
+        for(var i = 0; i<file_data.length;i++){
+            if(msg.name == file_data[i].name && msg.password == file_data[i].password){
+                new_user = false;
+                var {password, ...loaded_user} = file_data[i];
+                user.fromJSON(loaded_user);
+                //por si quiere canviar avatar
+                user.avatar_id = msg.avatar_id;
+                console.log("LOADED USER WITH ID "+file_data[i].id);
+            }
+        }
+        if(new_user){
+            user.id = file_data.length +1;
+            user.name = msg.name;
+            user.avatar_id = msg.avatar_id;
+            user.password = msg.password;
+            user.room_id = 0; //default on room 0
+            var {_connection, ...stored_user} = user;
+            file_data.push(stored_user);
+            console.log(stored_user);
+            fs.writeFile(users_json, JSON.stringify(file_data,null,2 ) , err => {
+                if (err) {
+                    console.log('Error writing file', err)
+                }
+            });
 
-    user.id = last_id ++;
-    user.name = msg.name;
-    user.avatar_id = msg.avatar_id;
+            console.log("NEW WEBSOCKET USER WITH ID "+ user.id);
+        }
+    }
     WORLD.users.push(user);
     WORLD.users_by_id[user.id] = user;
-    var room = WORLD.rooms[0]; //default on room 0
+    var room = WORLD.rooms[user.room_id]; 
     room.enterUser(user);
 
-    console.log("NEW WEBSOCKET USER!");
 
     if(user._connection){
         var msg = { type: "login", user: user.toJSON()};
@@ -110,7 +137,7 @@ function createUser(user,msg){
 }
 
 function onUserDisconnected(user){
-    var index = WORLD.users.indexOf(this);
+    var index = WORLD.users.map(function(e) { return e.id; }).indexOf(user.id);
     if(index != -1 ){
         WORLD.users.splice(index,1);
         delete WORLD.users_by_id[user.id];
@@ -120,18 +147,46 @@ function onUserDisconnected(user){
     if(room){
         room.leaveUser(user);
     } 
+    //update user on JSON
+    var file_data = readFileJSON();
+    if(file_data){
+        for(var i = 0; i<file_data.length;i++){
+            if(file_data[i].id == user.id ){  
+              //variable fields (un poco hardcoded...)
+              file_data[i].position = user.position;
+              file_data[i].target_position = user.target_position;
+              file_data[i].room_id = user.room_id;
+              file_data[i].facing = user.facing;
+            }
+          }
+        fs.writeFile(users_json, JSON.stringify(file_data,null,2 ) , err => {
+            if (err) {
+                console.log('Error writing file', err)
+            }
+        });
+    }
 }
 
-/*function Tick(){
+function readFileJSON(){
+    try {
+        var data = fs.readFileSync(users_json, 'utf8')
+        return JSON.parse(data);
+      } catch (err) {
+        console.error(err)
+        return null;
+      }
+}
+
+function Tick(){
 
     for(var i in WORLD.rooms){
 
         var room = WORLD.rooms[i];
         var users_info = room.getRoomUsers();
         //Send data to users on the room
-        for(var j = 0; j< room.users.length; j++){
+        for(var j = 0; j< room.room_users.length; j++){
 
-            var user_id = room.users[j];
+            var user_id = room.room_users[j];
             var user = WORLD.users_by_id[user_id];
             if(user && user._connection){
                 var msg = {
@@ -139,10 +194,10 @@ function onUserDisconnected(user){
                     room_id:room.id,
                     users: users_info
                 }
-                WORLD.users._connection.send (JSON.stringify(msg));
+                user._connection.send (JSON.stringify(msg));
             }
             
         }
     }
 }
-setInterval(Tick, 1000);*/
+setInterval(Tick, 1000);

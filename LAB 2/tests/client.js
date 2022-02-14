@@ -22,17 +22,12 @@ var CLIENT = {
             password: this.password,
             avatar_id: this.avatar_id
         };
-        /*
-        login_msg.username = this.name;
-        login_msg.password = this.password;
-        login_msg.avatar_id = 1;*/
         var msg = JSON.stringify(login_msg);
         this.server.send(msg)
     },
 
     processMessage: function(e){
         var msg = JSON.parse(e.data);
-        console.log("RECEIVED: " + e.data);
         LOGIC.onMessage(msg)
         
     },

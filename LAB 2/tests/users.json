@@ -1,3 +1,13 @@
 [
- 
+    {
+        "id" : 1,
+        "name" : "root",
+        "password": "root",
+        "position" : [0,0],
+        "target_position" : [0,0],
+        "anim" : "idle",
+        "facing" : 0,
+        "room_id": 0,
+        "avatar_id": 1
+    }
 ]

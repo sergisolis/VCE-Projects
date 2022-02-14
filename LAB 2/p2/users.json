@@ -1,9 +1,36 @@
 [
   {
     "id": 1,
-    "username": "root",
+    "name": "root",
     "password": "root",
-    "room_id": 1,
-    "pos_x": 0
+    "position": [
+      897,
+      0
+    ],
+    "target_position": [
+      897,
+      0
+    ],
+    "anim": "idle",
+    "facing": 0,
+    "room_id": 0,
+    "avatar_id": 1
+  },
+  {
+    "id": 2,
+    "name": "a",
+    "position": [
+      536,
+      0
+    ],
+    "target_position": [
+      536,
+      0
+    ],
+    "anim": "idle",
+    "facing": 0,
+    "room_id": 0,
+    "avatar_id": 2,
+    "password": "a"
   }
 ]

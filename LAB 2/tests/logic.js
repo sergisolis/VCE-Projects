@@ -1,3 +1,4 @@
+
 var LOGIC = {
     input_text: null,
     send_button: null,
@@ -9,8 +10,8 @@ var LOGIC = {
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
-        //test tick
-        //setInterval(this.tick.bind(this), 100);
+        //TEST TICK
+        setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
@@ -20,16 +21,16 @@ var LOGIC = {
             this.updateUserInput(dt, WORLD.local_user);
         }
     },
-    /*
+    
     tick: function(){
         if(WORLD.local_user){
         var update = {
             type: "user_update",
             user: WORLD.local_user.toJSON()
         }
-        CLIENT.send(JSON.stringify(update));
+        CLIENT.send(update);
     }
-    },*/
+    },
 
     lerp: function(a,b,f)
     {
@@ -83,11 +84,11 @@ var LOGIC = {
         var msg = {
             type: "text",
             content: "",
-            name: ""
+            name: "",
         }
         msg.content = str;
         msg.name = CLIENT.name;
-        CLIENT.server.send(JSON.stringify(msg));
+        CLIENT.send(msg);
         GFX.displayText(msg, CLIENT.name);
 
     },
@@ -104,6 +105,9 @@ var LOGIC = {
     },
     onMessage: function(msg)
     {
+        if(msg.type != "users"){
+            console.log("RECEIVED: " + msg);
+        }
         if (msg.type == "login"){
 
             WORLD.local_user = this.UpdateUserInfo(msg.user);
@@ -133,6 +137,16 @@ var LOGIC = {
                         room.enterUser(user);
                     }
                 }
+            //si no esta en el msg tiene que eliminarse
+            for(var i=0; i < WORLD.users.length; i ++){
+                var user = WORLD.users[i];
+                var index = msg.users.map(function(e) { return e.id; }).indexOf(user.id);
+                if(index == -1 ){
+                    WORLD.users.splice(index,1);
+                    delete WORLD.users_by_id[user.id];
+                    room.leaveUser(user);
+                }
+            }
         }
      }
        

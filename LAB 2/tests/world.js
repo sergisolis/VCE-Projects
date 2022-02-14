@@ -2,6 +2,7 @@ var FACE_RIGHT = 0;
 var FACE_BOTTOM = 1;
 var FACE_LEFT = 2;
 var FACE_UP = 3;
+//TEST
 //CLASS USER
 function User()
 {
