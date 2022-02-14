@@ -1,7 +1,3 @@
-/*var FACE_RIGHT = 0;
-var FACE_BOTTOM = 1;
-var FACE_LEFT = 2;
-var FACE_UP = 3;*/
 
 var ANIMS = {
     idle: [0],
@@ -64,12 +60,13 @@ var GFX = {
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
         ctx.drawImage(sprites, frame_index*32, row, 32, 64, user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
-       // user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
+       //user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
 
+        //name over user
         ctx.font = "50px VT323";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
-        ctx.fillText("user1", user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        ctx.fillText(user.name, user.position[0] + (this.sprite_width / 2 * this.scale), 640);
     },
 
     drawRoom: function(ctx, main_user)
@@ -111,13 +108,24 @@ var GFX = {
             if(!user){
                 continue;
             }
-
-            var sprites = getImage("img/man1-spritesheet.png");
+            var avatar = this.selectAvatar(user.avatar_id);
+            var sprites = getImage(avatar);
             this.drawCharacter(ctx, sprites, user)
             
         }
         
         ctx.restore();
+    },
+    selectAvatar: function(avatar_id){
+        var avatar = "";
+        switch(avatar_id){
+            case 1: avatar = "img/man1-spritesheet.png"; break;
+            case 2: avatar = "img/woman1-spritesheet.png"; break;
+            case 3: avatar = "img/man2-spritesheet.png"; break;
+            case 4: avatar = "img/woman2-spritesheet.png"; break;
+            default: avatar = "img/man1-spritesheet.png"; break;
+        }
+        return avatar;
     },
 
     displayText: function(message, my_name){

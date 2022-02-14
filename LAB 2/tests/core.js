@@ -38,7 +38,8 @@ var CORE = {
         var login = document.getElementById("login");
         var chat_app = document.getElementById("chatApp");
         var login_name = document.querySelector("#login input[type='name']").value;
-        var login_password = document.querySelector("#login input[type='password']").value; 
+        var login_password = document.querySelector("#login input[type='password']").value;
+        var login_avatar_id = parseInt(document.querySelector("#login #avatar-select").value);
                 
         if(login_name != "" && login_password != ""){  //si los campos de inicio de sesión están rellenados 
             //oculta login y muestra chat
@@ -49,7 +50,7 @@ var CORE = {
                 chat_app.style.display = "";
             }        
             this.server = new WebSocket(this.server_url);
-            CLIENT.init(this.server, login_name, login_password,1); //avatar id hardcoded...
+            CLIENT.init(this.server, login_name, login_password,login_avatar_id); 
         } 
     },
 

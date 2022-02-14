@@ -39,7 +39,6 @@ var last_id = 0; //provisional --> change to json file etc..
 
 //create world
 WORLD.fromJSON();
-console.log("ROOMS: " + WORLD.rooms.length);
 
 wsServer.on('request', function(request) {
 
@@ -67,18 +66,21 @@ function onUserMessage(user,message){
     /*if(msg.type == "user_update"){
         user.fromJSON(msg.user);
     }*/
-   if(message.type == "text"){
-        sendMessageRoom(message.utf8Data);
+   if(msg.type == "text"){
+        console.log(msg);
+        sendMessageRoom(user,msg);
     }
 }
 
-function sendMessageRoom( msg ){
-    var room = WORLD.rooms[user.room_id];
+function sendMessageRoom(my_user, msg ){
+    var room = WORLD.rooms[my_user.room_id];
     for(var i=0; i < room.room_users.length; i++){
         var user_id = room.room_users[i];
-        var user = WORLD.users_by_id[user_id];
-        if(user._connection){
-            user._connection.send(msg);
+        if(my_user.id != user_id){
+            var user = WORLD.users_by_id[user_id];
+            if(user._connection){
+                user._connection.send(JSON.stringify(msg));
+            }
         }
     }
 }
@@ -97,15 +99,12 @@ function createUser(user,msg){
 
     if(user._connection){
         var msg = { type: "login", user: user.toJSON()};
-        console.log(msg);
         user._connection.send(JSON.stringify(msg));
 
         var msg = { type: "room", room: room.toJSON()};
-        console.log(msg);
         user._connection.send(JSON.stringify(msg));
 
         var msg = {type:"users", room_id: room.id, users: room.getRoomUsers()};
-        console.log(msg);
         user._connection.send(JSON.stringify(msg));
     }
 }
@@ -122,3 +121,28 @@ function onUserDisconnected(user){
         room.leaveUser(user);
     } 
 }
+
+/*function Tick(){
+
+    for(var i in WORLD.rooms){
+
+        var room = WORLD.rooms[i];
+        var users_info = room.getRoomUsers();
+        //Send data to users on the room
+        for(var j = 0; j< room.users.length; j++){
+
+            var user_id = room.users[j];
+            var user = WORLD.users_by_id[user_id];
+            if(user && user._connection){
+                var msg = {
+                    type:"users", 
+                    room_id:room.id,
+                    users: users_info
+                }
+                WORLD.users._connection.send (JSON.stringify(msg));
+            }
+            
+        }
+    }
+}
+setInterval(Tick, 1000);*/

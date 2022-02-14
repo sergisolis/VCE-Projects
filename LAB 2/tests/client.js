@@ -32,7 +32,7 @@ var CLIENT = {
 
     processMessage: function(e){
         var msg = JSON.parse(e.data);
-        //console.log("RECEIVED: " + e.data);
+        console.log("RECEIVED: " + e.data);
         LOGIC.onMessage(msg)
         
     },

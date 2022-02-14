@@ -10,7 +10,7 @@ var LOGIC = {
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
         //test tick
-        setInterval(this.tick.bind(this), 100);
+        //setInterval(this.tick.bind(this), 100);
     },
 
     update: function(dt){
