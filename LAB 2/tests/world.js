@@ -19,8 +19,7 @@ function User()
 User.prototype.fromJSON = function(json){
     this.id = json.id;
     this.name = json.name;
-    this.position = json.position;
-    this.target_position = json.position;
+    this.target_position = json.target_position;
     this.anim = json.anim;
     this.facing = json.facing;
     this.room_id = json.room_id;
@@ -31,7 +30,6 @@ User.prototype.toJSON = function(){
     return {
         id : this.id,
         name : this.name,
-        position : this.position.concat(),
         target_position : this.target_position.concat(),
         anim : this.anim,
         facing : this.facing,

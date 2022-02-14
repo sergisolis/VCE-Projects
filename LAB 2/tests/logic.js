@@ -17,8 +17,9 @@ var LOGIC = {
     update: function(dt){
         if (WORLD.local_user)
         {
-            //WORLD.local_user.position[0] = this.lerp( WORLD.local_user.position[0], WORLD.local_user.target_position[0], 0.01 );
-            this.updateUserInput(dt, WORLD.local_user);
+            for (let i = 0; i < WORLD.users.length; i++) {
+                this.updateUserInput(dt, WORLD.users[i]);
+            }  
         }
     },
     
