@@ -46,7 +46,6 @@ var GFX = {
              this.drawRoom(ctx, WORLD.local_user);
              if (this.objects_state == false){
                 this.initObjects(WORLD.local_user);
-                this.objects_state = true;
              }
         }else{
                 ctx.fillStyle = "white";
@@ -57,6 +56,9 @@ var GFX = {
 
     drawCharacter: function (ctx, sprites, user)
     {
+        var centerx = canvas.width * 0.5;
+        centerx -= WORLD.local_user.position[0];
+
         var w = 32; //sprite width
 	    var h = 64; //sprite height
         var t = performance.now() * 0.001;
@@ -64,14 +66,14 @@ var GFX = {
         var anim = ANIMS[ user.anim];
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
-        ctx.drawImage(sprites, frame_index*32, row, 32, 64, user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
+        ctx.drawImage(sprites, frame_index*32, row, 32, 64, centerx + user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
        //user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
 
         //name over user
         ctx.font = "50px VT323";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
-        ctx.fillText(user.name, user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        ctx.fillText(user.name, centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
     },
 
     drawRoom: function(ctx, main_user)
@@ -135,37 +137,49 @@ var GFX = {
         return avatar;
     },
 
-    initObjects: function(main_user){
-        var room = WORLD.rooms[main_user.room_id];
-        for (var i = 0; i < room.sprites.length; i++)
-        {
-            var sprite = room.sprites[i];
-            var sprite_name = sprite.src.split("/").pop();
+    initObjects: async function(main_user){
+        var room = await WORLD.rooms[main_user.room_id];
+        if (room != undefined){
+            for (var i = 0; i < room.sprites.length; i++)
+            {
+                var sprite = room.sprites[i];
+                var sprite_name = sprite.src.split("/").pop();
 
-            var img = IMAGES[sprite.src];
+                var img = IMAGES[sprite.src];
 
-            var object = {
-                name: sprite_name,
-                src:  sprite.src,
-                x: sprite.x,
-                y: sprite.y,
-                w: img.width,
-                h: img.height
+                var object = {
+                    name: sprite_name,
+                    src:  sprite.src,
+                    x: sprite.x,
+                    y: sprite.y,
+                    w: img.width,
+                    h: img.height
+                }
+                this.objects.push(object);
             }
-            this.objects.push(object);
+            this.objects_state = true;    
         }
-            
     },
 
     checkObjects: function(mouse_x, mouse_y){
         for (var i = 0; i < this.objects.length; i++)
         {
-            var centerx = canvas.width * 0.5;;
+            var object = this.objects[i];
+            var centerx = canvas.width * 0.5;
             if (this.objects[i].name != 'background.png'){
                 centerx -= WORLD.local_user.position[0];
-                var object = this.objects[i];
+                
                 if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + object.w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + object.h)){
-                    console.log("touching object");
+                    console.log("touching object " + object.src);
+                    
+                    var room = WORLD.rooms[WORLD.local_user.room_id];
+                    for (var i = 0; i < room.sprites.length; i++)
+                    {
+                        if (object.src == room.sprites[i].src){
+                            room.sprites[i].src = "img/door_open.png";
+                        }
+                    }
+                    
                 }
                 
             }
