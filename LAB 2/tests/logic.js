@@ -120,14 +120,26 @@ var LOGIC = {
     },
     onMessage: function(msg)
     {
+        if(msg.type == "connection_error"){
+            var login = document.getElementById("login");
+            var chat_app = document.getElementById("chatApp");
+            var error = document.getElementById("error-display");
+            error.style.display = "block";
+            login.style.height = "550px";
+            login.style.display = "";
+            chat_app.style.display = "none";
+            CORE.server.close();
+        }
 
         if (msg.type == "login"){
 
             WORLD.local_user = this.UpdateUserInfo(msg.user);
         }
         if (msg.type == "room"){
+
             var room = WORLD.rooms[msg.room.id];
             WORLD.local_user.room_id = msg.room.id;
+
             if(!room){
                 room = new Room();
                 WORLD.rooms[msg.room.id] = room;
