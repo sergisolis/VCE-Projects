@@ -1,4 +1,3 @@
-
 var LOGIC = {
     input_text: null,
     send_button: null,
@@ -11,7 +10,7 @@ var LOGIC = {
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
         //TEST TICK
-        setInterval(this.tick.bind(this), 500);
+        //setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
@@ -30,7 +29,7 @@ var LOGIC = {
             user: WORLD.local_user.toJSON()
         }
         CLIENT.send(update);
-    }
+      }
     },
 
     lerp: function(a,b,f)
@@ -61,7 +60,22 @@ var LOGIC = {
        
         
     },
-
+    //ONLY FOR TESTING
+    changeRoomRight(){
+        var msg = {
+            type: "change_room",
+            room_id: WORLD.local_user.room_id + 1,
+        }
+        CLIENT.send(msg);
+    },
+    changeRoomLeft(){
+        var msg = {
+            type: "change_room",
+            room_id: WORLD.local_user.room_id - 1,
+        }
+        CLIENT.send(msg);
+    },
+    //END OF TESTING
     onKeyDown: function(e)
     {
         if(e.code == "Enter"){
@@ -74,7 +88,7 @@ var LOGIC = {
         var str = "";
         str += this.input_text.value;
         // evita enviar cadenas vacías
-        if(this.input_text){
+        if(this.input_text.value){
             this.input_text.value = "";
             
             this.addText(str);
@@ -106,15 +120,14 @@ var LOGIC = {
     },
     onMessage: function(msg)
     {
-        if(msg.type != "users"){
-            console.log("RECEIVED: " + msg);
-        }
+
         if (msg.type == "login"){
 
             WORLD.local_user = this.UpdateUserInfo(msg.user);
         }
         if (msg.type == "room"){
             var room = WORLD.rooms[msg.room.id];
+            WORLD.local_user.room_id = msg.room.id;
             if(!room){
                 room = new Room();
                 WORLD.rooms[msg.room.id] = room;

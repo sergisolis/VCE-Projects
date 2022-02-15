@@ -109,7 +109,26 @@ var world_demo = {
         {
             sprites: [
                 {src:"img/background.png", x:0, y:0},
-               // {src:"img/hall.png", x: 0, y: -300}
+                {src:"img/background.png", x:1344, y:0},
+                {src:"img/background.png", x:-1344, y:0},
+                {src:"img/alfombra.png", x:0, y:150},
+               
+            ]
+        },
+        {
+            sprites: [
+                {src:"img/background.png", x:0, y:0},
+                {src:"img/background.png", x:1344, y:0},
+                {src:"img/background.png", x:-1344, y:0},
+                {src:"img/cuadro_spiderman.png", x:0, y:400},
+            ]
+        },
+        {
+            sprites: [
+                {src:"img/background.png", x:0, y:0},
+                {src:"img/background.png", x:1344, y:0},
+                {src:"img/background.png", x:-1344, y:0},
+                {src:"img/cuadro_japon.png", x:0, y:400},
             ]
         }
     ],

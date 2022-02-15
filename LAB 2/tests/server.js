@@ -71,6 +71,30 @@ function onUserMessage(user,message){
         console.log(msg);
         sendMessageRoom(user,msg);
     }
+    //TESTING
+    if(msg.type == "change_room"){ //type:"change_room",room_id:(nueva room)
+        console.log(msg);
+        changeRoom(user,msg);
+    }
+}
+//TESTING
+function changeRoom(user,msg){
+
+    if(user.room_id != msg.room_id){
+
+        var old_room = WORLD.rooms[user.room_id];
+        var new_room =  WORLD.rooms[msg.room_id];
+
+        if(old_room && new_room){
+
+            old_room.leaveUser(user);
+
+            new_room.enterUser(user);
+
+            var msg = { type: "room", room: new_room.toJSON()};
+            user._connection.send(JSON.stringify(msg));
+        }
+    }
 }
 
 function sendMessageRoom(my_user, msg ){
