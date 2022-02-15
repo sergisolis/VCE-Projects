@@ -2,6 +2,7 @@ var FACE_RIGHT = 0;
 var FACE_BOTTOM = 1;
 var FACE_LEFT = 2;
 var FACE_UP = 3;
+//TEST
 //CLASS USER
 function User()
 {
@@ -11,101 +12,109 @@ function User()
     this.target_position = [0,0];
     this.anim = "idle";
     this.facing = FACE_RIGHT;
-    this.room_id = -1;
+    this.room_id = -1,
+    this.avatar_id = -1;
 }
 
-User.prototype.fromJSON = function(json,to_target){
+User.prototype.fromJSON = function(json){
     this.id = json.id;
     this.name = json.name;
-    if(to_target){
-         this.target_position = json.position;
-    }else{
-        this.position = json.position
-    }
+    this.target_position = json.target_position;
     this.anim = json.anim;
     this.facing = json.facing;
     this.room_id = json.room_id;
-}
+    this.avatar_id = json.avatar_id;
 
+}
 User.prototype.toJSON = function(){
     return {
         id : this.id,
         name : this.name,
-        position : this.position.concat(),
+        target_position : this.target_position.concat(),
         anim : this.anim,
         facing : this.facing,
-        room_id: this.room_id
+        room_id: this.room_id,
+        avatar_id: this.avatar_id
     }    
 }
+
 //CLASS ROOM
 function Room()
 {
     this.id = -1;
     this.sprites = [];
-    this.users = [];
+    this.room_users = []; //save id of the users inside room
 }
 
 Room.prototype.fromJSON = function(json){
     this.id = json.id;
     this.sprites = json.sprites.concat();
-    if(json.users)
-        this.users = json.users.concat();
+    if(json.room_users)
+        this.room_users = json.room_users.concat();
 }
 
 Room.prototype.toJSON = function(){
     return {
         id: this.id,
         sprites: this.sprites.concat(),
-        users: this.users.concat()
+        room_users: this.room_users.concat()
     };
 }
 
 Room.prototype.enterUser = function(user){
-    this.users.push( user.id );
+    this.room_users.push( user.id );
     user.room_id = this.id;
 }
 
 Room.prototype.leaveUser = function(user){
-    var index = this.users.indexOf( user.id);
+    var index = this.room_users.indexOf( user.id);
     if(index != -1){
-        this.users.splice(index, 1);
+        this.room_users.splice(index, 1);
     }  
 }
+
 Room.prototype.isUserInside = function(user){
-    return this.users.indexOf (user.id) != -1;
+    return this.room_users.indexOf (user.id) != -1;
 }
 
 Room.prototype.getRoomUsers = function(){
-        var users_info = [];
-        //Get data from users on the room
-        for(var j = 0; j< this.users.length; j++){
+    var users_info = [];
+    for(var i = 0; i< this.room_users.length; i++){
 
-            var user_id = this.users[j];
-            var user = WORLD.users_by_id[user_id];
-            if(user){
-                users_info.push(user.toJson());  
-            }     
-        }
-        return users_info;
+        var user_id = this.room_users[i];
+        var user = WORLD.users_by_id[user_id];
+        if(user){
+            users_info.push(user.toJSON());  
+        }     
+    }
+    return users_info;
 }
 
+//WORLD
+
+//world template
 var world_demo = {
     rooms : [
         {
             sprites: [
-                {src:"img/hall.png", x:0, y:0},
-                {src:"img/hall.png", x:-500, y:0}
+                {src:"img/background.png", x:0, y:0},
+                {src:"img/background.png", x:1344, y:0},
+                {src:"img/background.png", x:2688, y:0},
+                {src:"img/background.png", x:-1344, y:0},
+                {src:"img/background.png", x:2688, y:0},
+                {src:"img/door_close.png", x:50, y:250}
+                //{src:"img/hall.png", x:-500, y:0}
             ]
         },
         {
             sprites: [
-                {src:"img/hall.png", x:0, y:0},
-                {src:"img/hall.png", x: 0, y: -300}
+                {src:"img/background.png", x:0, y:0},
+               // {src:"img/hall.png", x: 0, y: -300}
             ]
         }
     ],
 };
-//WORLD
+//WORLD CLASS
 var WORLD = {
     rooms: [],
     users: [],
@@ -114,9 +123,7 @@ var WORLD = {
 
     init: function()
     {
-        //this.loadWorld( world_demo );
-        //this.local_user = this.createUser();
-       // this.rooms[0].enterUser( this.local_user);
+        
     },
 
     toJSON: function(){
@@ -145,27 +152,13 @@ var WORLD = {
             this.rooms.push(room);
         }
     },
-
-   /* createUser: function()
-    {
-        var user = new User();
-        user.id = 0;
-        this.users.push(user);
-        return user;
-    }*/
-
-
 };
 
-//CORE.modules.push(WORLD);
+//import modules
 if ( typeof (module) != "undefined" ){
     module.exports = {
         User,
         Room,
-        WORLD,
-        FACE_RIGHT,
-        FACE_BOTTOM,
-        FACE_LEFT,
-        FACE_UP
+        WORLD 
     }
 }

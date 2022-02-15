@@ -44,18 +44,18 @@ var LOGIC = {
 
         var diff = Math.abs(user.position[0] - user.target_position[0]);
 
-        if(user.position[0] < user.target_position[0] && diff > 30){
+        if(user.position[0] < user.target_position[0] && diff > 5){
             user.anim = "walk";
             user.facing = FACE_RIGHT;
             user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
-        } else if(user.position[0] > user.target_position[0] && diff > 30) {
+        } else if(user.position[0] > user.target_position[0] && diff > 5) {
             user.anim = "walk";
             user.facing = FACE_LEFT;
             user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
         }
         else {
             user.anim = "idle";
-            user.position[0] = user.target_position[0];
+            //user.position[0] = user.target_position[0];
         }
 
        

@@ -50,7 +50,7 @@ var CORE = {
                 chat_app.style.display = "";
             }        
             this.server = new WebSocket(this.server_url);
-            CLIENT.init(this.server, login_name, login_password,login_avatar_id); 
+            CLIENT.init(this.server, login_name, login_password, login_avatar_id); 
         } 
     },
 
@@ -70,14 +70,15 @@ var CORE = {
     
         if(e.type == "mousedown")
         {
-            /*
-            targetPosition(canvas_x, canvas_y)
-            */
-            this.mouse_pos[0] = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
-            WORLD.local_user.target_position[0] = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
-            //position_msg.position_y = canvas_y;
-            //var pos_msg = JSON.stringify(position_msg);
-            //socket.send(pos_msg);   
+            var target_x = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
+
+            this.mouse_pos[0] = target_x;
+            WORLD.local_user.target_position[0] = target_x;
+
+            GFX.checkObjects(canvas_x, canvas_y);
+
+
+ 
         }
         else if(e.type == "mousemove")
         {

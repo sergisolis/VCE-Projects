@@ -1,10 +1,3 @@
-const { WORLD } = require("./world");
-
-/*var FACE_RIGHT = 0;
-var FACE_BOTTOM = 1;
-var FACE_LEFT = 2;
-var FACE_UP = 3;*/
-
 var ANIMS = {
     idle: [0],
     walk: [2,3,4,5,6,7,8]
@@ -31,13 +24,15 @@ var GFX = {
     sprite_height: null,
     scale: 1,
 
+    objects_state: false,
+    objects : [],
+
     init: function(canvas)
     {
         this.canvas = canvas;
         this.sprite_width = 32;
         this.sprite_height = 64;
         this.scale = 5;
-
     },
 
     draw: function(){
@@ -49,6 +44,10 @@ var GFX = {
 
         if(WORLD.local_user){
              this.drawRoom(ctx, WORLD.local_user);
+             if (this.objects_state == false){
+                this.initObjects(WORLD.local_user);
+                this.objects_state = true;
+             }
         }else{
                 ctx.fillStyle = "white";
                 ctx.font = "40px Arial"
@@ -66,12 +65,13 @@ var GFX = {
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
         ctx.drawImage(sprites, frame_index*32, row, 32, 64, user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
-        user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
+       //user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
 
+        //name over user
         ctx.font = "50px VT323";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
-        ctx.fillText("user1", user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        ctx.fillText(user.name, user.position[0] + (this.sprite_width / 2 * this.scale), 640);
     },
 
     drawRoom: function(ctx, main_user)
@@ -99,27 +99,81 @@ var GFX = {
         {
             var sprite = room.sprites[i];
             var img = getImage( sprite.src);
-            ctx.drawImage (img, sprite.x, sprite.y);
+
+            ctx.drawImage (img, centerx + sprite.x, sprite.y);
         }
 
         //ctx.drawImage(bg,0,0);
         //ctx.drawImage(bg,-bg.width,0);
         
-        for (var i = 0; i < room.users.length; i++)
+        for (var i = 0; i < room.room_users.length; i++)
         {
-            var user_index = room.users[i];
+            var user_index = room.room_users[i];
             var user = WORLD.users_by_id[ user_index ];
 
             if(!user){
                 continue;
             }
-
-            var sprites = getImage("img/man1-spritesheet.png");
+            var avatar = this.selectAvatar(user.avatar_id);
+            var sprites = getImage(avatar);
             this.drawCharacter(ctx, sprites, user)
             
         }
         
         ctx.restore();
+    },
+
+    selectAvatar: function(avatar_id){
+        var avatar = "";
+        switch(avatar_id){
+            case 1: avatar = "img/man1-spritesheet.png"; break;
+            case 2: avatar = "img/woman1-spritesheet.png"; break;
+            case 3: avatar = "img/man2-spritesheet.png"; break;
+            case 4: avatar = "img/woman2-spritesheet.png"; break;
+            default: avatar = "img/man1-spritesheet.png"; break;
+        }
+        return avatar;
+    },
+
+    initObjects: function(main_user){
+        var room = WORLD.rooms[main_user.room_id];
+        for (var i = 0; i < room.sprites.length; i++)
+        {
+            var sprite = room.sprites[i];
+            var sprite_name = sprite.src.split("/").pop();
+
+            var img = IMAGES[sprite.src];
+
+            var object = {
+                name: sprite_name,
+                src:  sprite.src,
+                x: sprite.x,
+                y: sprite.y,
+                w: img.width,
+                h: img.height
+            }
+            this.objects.push(object);
+        }
+            
+    },
+
+    checkObjects: function(mouse_x, mouse_y){
+        for (var i = 0; i < this.objects.length; i++)
+        {
+            var centerx = canvas.width * 0.5;;
+            if (this.objects[i].name != 'background.png'){
+                centerx -= WORLD.local_user.position[0];
+                var object = this.objects[i];
+                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + object.w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + object.h)){
+                    console.log("touching object");
+                }
+                
+            }
+        }
+    },
+
+    changeObjects: function(){
+
     },
 
     displayText: function(message, my_name){

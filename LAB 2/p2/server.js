@@ -3,18 +3,13 @@
 const http = require('http'),
       WebSocketServer = require('websocket').server,
       url = require('url'),
-      express = require('express'),
       fs = require('fs'),
       users_json = "./users.json";
-
 
 //vars y const globales
 
 const port = 9026;
 const second_port = 9027;
-
-var clients = [ ];
-var MAX_BUFFER = 100;
 
 //HTTP Server
 
@@ -28,7 +23,7 @@ const server = http.createServer( function(request, response) {
 
 server.listen(port, function(){
     console.log('Server is listening on ' + port);
-})
+});
 
 // Websocket Server
 
@@ -36,215 +31,173 @@ wsServer = new WebSocketServer({ // create the server
     httpServer: server //if we already have our HTTPServer in server variable...
 });
 
-//FUNCTIONS
+const { strictEqual } = require('assert');
+//import world
+var world = require('./world.js');
+var WORLD = world.WORLD;
 
-function originIsAllowed(origin) {
-    if(origin === "https://ecv-etic.upf.edu"){
-        return true;
-    }
-    return false;
-}
+//var last_id = 0; //provisional --> change to json file etc..
 
-//helper function to read json
-function jsonReader(filePath, cb) {
-  fs.readFile(filePath, (err, fileData) => {
-    if (err) {
-      return cb && cb(err);
-    }
-    try {
-      const object = JSON.parse(fileData);
-      return cb && cb(null, object);
-    } catch (err) {
-      return cb && cb(err);
-    }
-  });
-}
-
-//helper function to create position message
-function positionMessage(id, position, username, avatar_id){
-  var message = {
-    type:"position",
-    id: id,
-    username: username,
-    position_x: position,
-    avatar_id: avatar_id
-  }
-  return message;
-}
-
-//helper function to send message to all other users of the same room
-function sendMessageToRoom(client,msg){
-  for (let i = 0; i < clients.length; i++) {
-    if(clients[i].id != client.id && clients[i].room_id == client.room_id){
-      clients[i].connection.sendUTF(JSON.stringify(msg));
-    }
-  }
-}
-//helper function to collect positions of the other users and send my position (used on login and change_room)
-function collectPositionsOfRoom(client){
-  //Array of other users position
-  var clients_pos = {
-    id: client.id,
-    type:"room",
-    content:[]
-  };
-
-  //Send my position to all other users of the room
-  var my_position = positionMessage(client.id,client.pos_x,client.username,client.avatar_id);
-  for (let i = 0; i < clients.length; i++) {
-    if(clients[i].id != client.id && clients[i].room_id == client.room_id){
-      //Get position of all other users of the room
-      var client_pos = positionMessage(clients[i].id, clients[i].pos_x, clients[i].username, clients[i].avatar_id);
-      clients_pos.content.push(client_pos);
-      //send message to other users of my position
-      clients[i].connection.sendUTF(JSON.stringify(my_position));  
-    }
-  }
-  //send message with all other users position
-  client.connection.sendUTF(JSON.stringify(clients_pos));
-}
-
-//Helper function to fill the client with the data
-function fillClient(client,id,room_id,pos_x,avatar_id){
-  client.id = id;
-  client.room_id = room_id;
-  client.pos_x = pos_x;
-  client.avatar_id = avatar_id;
-}
-
-//When someone enter on our webscoket 
+//create world
+WORLD.fromJSON();
 
 wsServer.on('request', function(request) {
-    if (!originIsAllowed(request.origin)) {
-        // Make sure we only accept requests from an allowed origin
-        request.reject();
-        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-        return;
-      }
 
-    var connection = request.accept(null, request.origin);
-    var login  = false;
- 
-    var client = {
-        id: null,
-        username: "",
-        password: "",
-        room_id: null,
-        pos_x: null,
-        avatar_id: null,
-        connection : connection
-    }; 
-    console.log("User in login");
+    var connection = request.accept(null,request.origin);
 
-    connection.on('message', function(message) {
-        if (message.type === 'utf8') { // accept only text
-            // first message sent by user is their login
-                var msg = JSON.parse(message.utf8Data);
-                if (msg.type == "login"){
+    var user = new world.User();
+    user._connection = connection;
 
-                    client.username = msg.username;
-                    client.password = msg.password;
-                    //read json file, if user/pass exists load the last user data, if not, create the new user register with default values
-                    var new_user = true;
-                    jsonReader(users_json, (err, users) => {
-                      if (err) {
-                        console.log(err);
-                        return;
-                      }
-                      //if user exists, load the last user data from the json file
-                      for(var i = 0; i<users.length;i++){
-                        if(users[i].username == client.username && users[i].password == client.password){
-                          new_user = false;
-                          fillClient(client,users[i].id, users[i].room_id, users[i].pos_x, msg.avatar_id);
-                          console.log( "LOADED USER  \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);  
-                        }
-                      }
-                      //if user not exist, create the new user register with default values
-                      if(new_user == true){
-                        fillClient(client,users.length + 1, 1, 0, msg.avatar_id) //default values room_id:1 and pos_x:0
-                        var {avatar_id,connection, ...user} = client
-                        console.log( "NEW USER \n" + "id: " + client.id + " , username : " + client.username + " , password : " + client.password);     
-                        users.push(user);
-                        fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
-                          if (err) {
-                              console.log('Error writing file', err)
-                          }
-                      });
-                      }
-                      //CALENTADITA
-                      //push new client into clients list
-                    clients.push(client);
-                    login = true;
-                    collectPositionsOfRoom(client);
-                    });
-                }else if (msg.type == "text" ){ // log and broadcast the message  
-                //var msg = JSON.parse(message.utf8Data);
-               // msg.id =  client.id;
-		            console.log( msg); // process WebSocket message
-                sendMessageToRoom(client,msg);
-
-             }else if (msg.type == "position"){
-               //upload to new position
-               client.pos_x = msg.pos_x;
-               var my_position = positionMessage(client.id,client.pos_x,client.username,client.avatar_id);
-               //Send new position to all other users of the room
-               console.log(my_position)
-               sendMessageToRoom(client,my_position);
-
-             }else if(msg.type == "change_room"){
-              //upload to new room/position
-              client.pos_x = msg.pos_x;
-              client.room_id = msg.room_id;
-              collectPositionsOfRoom(client);
-             }
-         }
+    connection.on('message',function (message){
+       onUserMessage(user,message);
     });
-    //User disconnected
-    connection.on('close', function(connection) {
 
-        if (login !== false ) {
+    connection.on('close',function(connection){
+        onUserDisconnected(user);
+    });
 
-          //console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
-          
-          //login = true;
-          //update user on json file
-          jsonReader(users_json, (err, users) => {
-              if (err) {
-                console.log(err);
-                return;
-              }
-              //get the user and change the variable attributes
-              for(var i = 0; i<users.length;i++){
-                if(users[i].id == client.id ){
-                  users[i].room_id = client.room_id;
-                  users[i].pos_x = client.pos_x;
-                }
-              }
-              fs.writeFile(users_json, JSON.stringify(users,null,2 ) , err => {
+});
+
+//FUNCTIONS
+function onUserMessage(user,message){
+    var msg = JSON.parse(message.utf8Data);
+    if(msg.type == "login"){
+        createUser(user,msg);
+    }
+    if(msg.type == "user_update"){
+        user.fromJSON(msg.user);
+    }
+   if(msg.type == "text"){
+        console.log(msg);
+        sendMessageRoom(user,msg);
+    }
+}
+
+function sendMessageRoom(my_user, msg ){
+    var room = WORLD.rooms[my_user.room_id];
+    for(var i=0; i < room.room_users.length; i++){
+        var user_id = room.room_users[i];
+        if(my_user.id != user_id){
+            var user = WORLD.users_by_id[user_id];
+            if(user._connection){
+                user._connection.send(JSON.stringify(msg));
+            }
+        }
+    }
+}
+
+function createUser(user,msg){
+    var new_user = true;
+    var file_data = readFileJSON();
+    if(file_data){
+        for(var i = 0; i<file_data.length;i++){
+            if(msg.name == file_data[i].name && msg.password == file_data[i].password){
+                new_user = false;
+                var {password, ...loaded_user} = file_data[i];
+                user.fromJSON(loaded_user);
+                //por si quiere canviar avatar
+                user.avatar_id = msg.avatar_id;
+                console.log("LOADED USER WITH ID "+file_data[i].id);
+            }
+        }
+        if(new_user){
+            user.id = file_data.length +1;
+            user.name = msg.name;
+            user.avatar_id = msg.avatar_id;
+            user.password = msg.password;
+            user.room_id = 0; //default on room 0
+            var {_connection, ...stored_user} = user;
+            file_data.push(stored_user);
+            console.log(stored_user);
+            fs.writeFile(users_json, JSON.stringify(file_data,null,2 ) , err => {
                 if (err) {
                     console.log('Error writing file', err)
                 }
             });
-          });
-          console.log("DISCONNECTED  \n" + "id: " + client.id + " , username : " + client.username );
-          //find the user in clients array to remove it
-          for( var i = 0; i < clients.length; i++){ 
-    
-            if ( clients[i].id == client.id) { 
-        
-                clients.splice(i, 1); 
-            }
-            else {
-              var disconnected = {
-                type:"room", //DEFINIR TIPO
-                content: client.username + " has disconnected"
-              }
-              clients[i].connection.sendUTF(JSON.stringify(disconnected));
-            }
-         }
-          // remove user from the list of connected clients
-          //clients.splice(index, 1);
-        }
-      });
-});
 
+            console.log("NEW WEBSOCKET USER WITH ID "+ user.id);
+        }
+    }
+    WORLD.users.push(user);
+    WORLD.users_by_id[user.id] = user;
+    var room = WORLD.rooms[user.room_id]; 
+    room.enterUser(user);
+
+
+    if(user._connection){
+        var msg = { type: "login", user: user.toJSON()};
+        user._connection.send(JSON.stringify(msg));
+
+        var msg = { type: "room", room: room.toJSON()};
+        user._connection.send(JSON.stringify(msg));
+
+        var msg = {type:"users", room_id: room.id, users: room.getRoomUsers()};
+        user._connection.send(JSON.stringify(msg));
+    }
+}
+
+function onUserDisconnected(user){
+    var index = WORLD.users.map(function(e) { return e.id; }).indexOf(user.id);
+    if(index != -1 ){
+        WORLD.users.splice(index,1);
+        delete WORLD.users_by_id[user.id];
+    }
+    console.log("USER "+user.id+" IS GONE!");
+    var room = WORLD.rooms[user.room_id];
+    if(room){
+        room.leaveUser(user);
+    } 
+    //update user on JSON
+    var file_data = readFileJSON();
+    if(file_data){
+        for(var i = 0; i<file_data.length;i++){
+            if(file_data[i].id == user.id ){  
+              //variable fields (un poco hardcoded...)
+              file_data[i].position = user.position;
+              file_data[i].target_position = user.target_position;
+              file_data[i].room_id = user.room_id;
+              file_data[i].facing = user.facing;
+            }
+          }
+        fs.writeFile(users_json, JSON.stringify(file_data,null,2 ) , err => {
+            if (err) {
+                console.log('Error writing file', err)
+            }
+        });
+    }
+}
+
+function readFileJSON(){
+    try {
+        var data = fs.readFileSync(users_json, 'utf8')
+        return JSON.parse(data);
+      } catch (err) {
+        console.error(err)
+        return null;
+      }
+}
+
+function Tick(){
+
+    for(var i in WORLD.rooms){
+
+        var room = WORLD.rooms[i];
+        var users_info = room.getRoomUsers();
+        //Send data to users on the room
+        for(var j = 0; j< room.room_users.length; j++){
+
+            var user_id = room.room_users[j];
+            var user = WORLD.users_by_id[user_id];
+            if(user && user._connection){
+                var msg = {
+                    type:"users", 
+                    room_id:room.id,
+                    users: users_info
+                }
+                user._connection.send (JSON.stringify(msg));
+            }
+            
+        }
+    }
+}
+setInterval(Tick, 1000);

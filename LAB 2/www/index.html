@@ -24,6 +24,14 @@
         <!-- Password input -->
         <label for="password">Password</label>
         <input type="password" placeholder="Enter Password">
+        <!-- Avatar selector -->
+        <label for="avatar-select">Choose an avatar:</label>
+        <select name="avatar-select" id="avatar-select">
+            <option value=1 >Avatar 1</option>
+            <option value=2>Avatar 2</option>
+            <option value=3>Avatar 3</option>
+            <option value=4>Avatar 4</option>
+        </select>
         <input class="loginSubmit" type="submit" value="Log In">        
     </div>    
     <!-- Chat -->
@@ -81,9 +89,10 @@
     <script src="https://kit.fontawesome.com/ce7a96ef8c.js" crossorigin="anonymous"></script>
 
     <script src="core.js"></script>
+ 
     <script src="logic.js"></script>
     <script src="client.js"></script>
-    <script src="gfx.js"></script>
+    <script src="gfx.js"></script> 
     <script src="world.js"></script>
 
     <script>CORE.init();</script>

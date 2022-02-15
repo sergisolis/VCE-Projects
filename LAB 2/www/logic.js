@@ -1,4 +1,3 @@
-const { WORLD, Room, User } = require("./world");
 
 var LOGIC = {
     input_text: null,
@@ -11,25 +10,26 @@ var LOGIC = {
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
-        //test tick
-        setInterval(this.tick.bind(this), 100);
+        //TEST TICK
+        setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
         if (WORLD.local_user)
         {
-            //WORLD.local_user.position[0] = this.lerp( WORLD.local_user.position[0], WORLD.local_user.target_position[0], 0.01 );
-            this.updateUserInput(dt, WORLD.local_user);
+            for (let i = 0; i < WORLD.users.length; i++) {
+                this.updateUserInput(dt, WORLD.users[i]);
+            }  
         }
     },
-
+    
     tick: function(){
         if(WORLD.local_user){
         var update = {
             type: "user_update",
             user: WORLD.local_user.toJSON()
         }
-        CLIENT.send(JSON.stringify(update));
+        CLIENT.send(update);
     }
     },
 
@@ -44,18 +44,18 @@ var LOGIC = {
 
         var diff = Math.abs(user.position[0] - user.target_position[0]);
 
-        if(user.position[0] < user.target_position[0] && diff > 30){
+        if(user.position[0] < user.target_position[0] && diff > 5){
             user.anim = "walk";
             user.facing = FACE_RIGHT;
             user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
-        } else if(user.position[0] > user.target_position[0] && diff > 30) {
+        } else if(user.position[0] > user.target_position[0] && diff > 5) {
             user.anim = "walk";
             user.facing = FACE_LEFT;
             user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
         }
         else {
             user.anim = "idle";
-            user.position[0] = user.target_position[0];
+            //user.position[0] = user.target_position[0];
         }
 
        
@@ -85,11 +85,11 @@ var LOGIC = {
         var msg = {
             type: "text",
             content: "",
-            name: ""
+            name: "",
         }
         msg.content = str;
         msg.name = CLIENT.name;
-        CLIENT.server.send(JSON.stringify(msg));
+        CLIENT.send(msg);
         GFX.displayText(msg, CLIENT.name);
 
     },
@@ -101,11 +101,14 @@ var LOGIC = {
             WORLD.users.push (user);
             WORLD.users_by_id[user_info.id] =  user;
         }
-        user.fromJSON(user_info, true);
+        user.fromJSON(user_info);
         return user;
     },
     onMessage: function(msg)
     {
+        if(msg.type != "users"){
+            console.log("RECEIVED: " + msg);
+        }
         if (msg.type == "login"){
 
             WORLD.local_user = this.UpdateUserInfo(msg.user);
@@ -116,7 +119,7 @@ var LOGIC = {
                 room = new Room();
                 WORLD.rooms[msg.room.id] = room;
             }
-            room.fromJSON( data.room);
+            room.fromJSON( msg.room);
         }
         if ( msg.type == "text"){
             GFX.displayText(msg, CLIENT.name);
@@ -135,6 +138,16 @@ var LOGIC = {
                         room.enterUser(user);
                     }
                 }
+            //si no esta en el msg tiene que eliminarse
+            for(var i=0; i < WORLD.users.length; i ++){
+                var user = WORLD.users[i];
+                var index = msg.users.map(function(e) { return e.id; }).indexOf(user.id);
+                if(index == -1 ){
+                    WORLD.users.splice(index,1);
+                    delete WORLD.users_by_id[user.id];
+                    room.leaveUser(user);
+                }
+            }
         }
      }
        
