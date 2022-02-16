@@ -44,9 +44,6 @@ var GFX = {
 
         if(WORLD.local_user){
              this.drawRoom(ctx, WORLD.local_user);
-             if (this.objects_state == false){
-                this.initObjects(WORLD.local_user);
-             }
         }else{
                 ctx.fillStyle = "white";
                 ctx.font = "40px Arial"
@@ -137,54 +134,11 @@ var GFX = {
         return avatar;
     },
 
-    initObjects: async function(main_user){
-        var room = await WORLD.rooms[main_user.room_id];
-        if (room != undefined){
-            for (var i = 0; i < room.sprites.length; i++)
-            {
-                var sprite = room.sprites[i];
-                var sprite_name = sprite.src.split("/").pop();
+    initObjects: function(main_user){
 
-                var img = IMAGES[sprite.src];
-
-                var object = {
-                    name: sprite_name,
-                    src:  sprite.src,
-                    x: sprite.x,
-                    y: sprite.y,
-                    w: img.width,
-                    h: img.height
-                }
-                this.objects.push(object);
-            }
-            this.objects_state = true;    
-        }
     },
 
-    checkObjects: function(mouse_x, mouse_y){
-        for (var i = 0; i < this.objects.length; i++)
-        {
-            var object = this.objects[i];
-            var centerx = canvas.width * 0.5;
-            if (this.objects[i].name != 'background.png'){
-                centerx -= WORLD.local_user.position[0];
-                
-                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + object.w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + object.h)){
-                    console.log("touching object " + object.src);
-                    
-                    var room = WORLD.rooms[WORLD.local_user.room_id];
-                    for (var i = 0; i < room.sprites.length; i++)
-                    {
-                        if (object.src == room.sprites[i].src){
-                            room.sprites[i].src = "img/door_open.png";
-                        }
-                    }
-                    
-                }
-                
-            }
-        }
-    },
+    
 
     changeObjects: function(){
 

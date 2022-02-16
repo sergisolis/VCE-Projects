@@ -54,7 +54,7 @@ var LOGIC = {
         }
         else {
             user.anim = "idle";
-            //user.position[0] = user.target_position[0];
+            user.position[0] = user.target_position[0];
         }
 
        
@@ -173,8 +173,8 @@ var LOGIC = {
                     room.leaveUser(user);
                 }
             }
+            }
         }
-     }
        
 
     
@@ -197,6 +197,31 @@ var LOGIC = {
             }
         }
         */
+    },
+    checkObjects: function(mouse_x, mouse_y){       
+        var centerx = GFX.canvas.width * 0.5;
+
+        var room = WORLD.rooms[WORLD.local_user.room_id];
+        for (var i = 0; i < room.sprites.length; i++){
+            if(room.sprites[i].src == "img/door_close.png"){
+                var object = room.sprites[i];
+                centerx -= WORLD.local_user.position[0];
+                var img = IMAGES[object.src];
+                var w = img.width;
+                var h = img.height;
+                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
+                    console.log("touching object " + object.src);
+                    var a = {
+                        src:"img/door_open.png",
+                        x:50, 
+                        y:250
+                    }
+                    WORLD.rooms[WORLD.local_user.room_id].sprites.push(a);                  
+                }
+
+            }
+            
+        }
     }
 }
 

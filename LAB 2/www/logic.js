@@ -1,5 +1,3 @@
-const { WORLD } = require("./world");
-
 var LOGIC = {
     input_text: null,
     send_button: null,

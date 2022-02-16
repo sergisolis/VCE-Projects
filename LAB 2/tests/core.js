@@ -87,7 +87,7 @@ var CORE = {
             this.mouse_pos[0] = target_x;
             WORLD.local_user.target_position[0] = target_x;
 
-            GFX.checkObjects(canvas_x, canvas_y);
+            LOGIC.checkObjects(canvas_x, canvas_y);
             //send to server to update my position to all users
             LOGIC.tick();
 
