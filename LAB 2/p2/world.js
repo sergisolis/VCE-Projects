@@ -19,7 +19,7 @@ function User()
 User.prototype.fromJSON = function(json){
     this.id = json.id;
     this.name = json.name;
-    if (json.position){
+    if (json.position /*&& json.id != WORLD.local_user.id*/){
         this.position = json.position;
     }
     this.target_position = json.target_position;
@@ -100,38 +100,48 @@ var world_demo = {
     rooms : [
         {
             sprites: [
-                {src:"img/background.png", x:0, y:0},
-                {src:"img/background.png", x:1344, y:0},
-                {src:"img/background.png", x:2688, y:0},
-                {src:"img/background.png", x:-1344, y:0},
-                {src:"img/background.png", x:2688, y:0},
-                {src:"img/door_close.png", x:50, y:250}
+                {src:"img/background.png", x:0, y:0 ,type:"bg"},
+                {src:"img/background.png", x:1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/background.png", x:-1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, target_room:1},
+                {src:"img/door_close.png", x:650, y:250, type:"door",state:false, target_room:2},
+                {src:"img/door_close.png", x:1250, y:250, type:"door",state:false, target_room:3}
                 //{src:"img/hall.png", x:-500, y:0}
             ]
         },
         {
             sprites: [
-                {src:"img/background.png", x:0, y:0},
-                {src:"img/background.png", x:1344, y:0},
-                {src:"img/background.png", x:-1344, y:0},
-                {src:"img/alfombra.png", x:0, y:150},
-               
+                {src:"img/background.png", x:0, y:0 ,type:"bg"},
+                {src:"img/background.png", x:1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/background.png", x:-1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/alfombra.png", x:0, y:50, type:"bg"},
+                {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, target_room:0}        
             ]
         },
         {
             sprites: [
-                {src:"img/background.png", x:0, y:0},
-                {src:"img/background.png", x:1344, y:0},
-                {src:"img/background.png", x:-1344, y:0},
-                {src:"img/cuadro_spiderman.png", x:0, y:400},
+                {src:"img/background.png", x:0, y:0 ,type:"bg"},
+                {src:"img/background.png", x:1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/background.png", x:-1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/cuadro_spiderman.png", x:0, y:600, type:"bg"},
+                {src:"img/door_close.png", x:650, y:250, type:"door" ,state:false, target_room:0}
             ]
         },
         {
             sprites: [
-                {src:"img/background.png", x:0, y:0},
-                {src:"img/background.png", x:1344, y:0},
-                {src:"img/background.png", x:-1344, y:0},
-                {src:"img/cuadro_japon.png", x:0, y:400},
+                {src:"img/background.png", x:0, y:0 ,type:"bg"},
+                {src:"img/background.png", x:1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/background.png", x:-1344, y:0, type:"bg"},
+                {src:"img/background.png", x:2688, y:0, type:"bg"},
+                {src:"img/cuadro_japon.png", x:0, y:600, type:"bg"},
+                {src:"img/door_close.png", x:1250, y:250, type:"door" ,state:false, target_room:0}
             ]
         }
     ],

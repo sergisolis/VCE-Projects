@@ -87,12 +87,34 @@ function changeRoom(user,msg){
 
         if(old_room && new_room){
 
+           for(var i = 0; i < old_room.sprites.length; i++){
+               if(old_room.sprites[i].type == "door"){
+                   if(old_room.sprites[i].target_room == msg.room_id && old_room.sprites[i].state == false){
+                        old_room.sprites[i].src = "img/door_open.png";
+                        old_room.sprites[i].state = true;
+                   }
+               }
+           }
+           var new_position = 0;
+           for(var i = 0; i < new_room.sprites.length; i++){
+                if(new_room.sprites[i].type == "door"){
+                    if(new_room.sprites[i].target_room == user.room_id && new_room.sprites[i].state == false){
+                        new_room.sprites[i].src = "img/door_open.png";
+                        new_room.sprites[i].state = true;
+                        new_position = new_room.sprites[i].x;
+                    }
+                }
+            }
+
+
             old_room.leaveUser(user);
 
             new_room.enterUser(user);
+            user.position[0] = new_position;
+            user.target_position[0] = new_position;
 
             var msg = { type: "room", room: new_room.toJSON()};
-            user._connection.send(JSON.stringify(msg));
+            user._connection.send(JSON.stringify(msg)); //HACE FALTA ENVIARLO A TODOS EN UN NUEVO TIPO DE MENSAJES QUE SOLO TE PASE LAS PUERTAS A TODOS
         }
     }
 }
@@ -215,6 +237,20 @@ function readFileJSON(){
         return null;
       }
 }
+
+/*function doorTick(){
+    for(var i in WORLD.rooms){
+          var room = WORLD.rooms[i];
+          var doors = room.sprites.doors;
+          for(var j in doors){
+              if(doors[j].src = "img/door_opened"){
+                  doors[j],src = "img/door_closed";
+              }
+          }
+    }
+}
+
+setInterval(doorTick(), 1000);*/
 
 function Tick(){
 

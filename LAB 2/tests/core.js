@@ -29,9 +29,6 @@ var CORE = {
         this.canvas.addEventListener("mousedown", this.processMouse.bind(this));
         this.canvas.addEventListener("mousemove", this.processMouse.bind(this));
         this.canvas.addEventListener("mouseup", this.processMouse.bind(this));
-        //TEST CHANGE ROOM
-        document.body.addEventListener("keydown", this.processKey.bind(this));
-        //END TEST
         this.loop();
     },
 
@@ -64,17 +61,6 @@ var CORE = {
     update: function(dt){
         LOGIC.update(dt);
     },
-    //TEST
-    processKey: function(e){
-        if(e.key == "ArrowRight"){
-            LOGIC.changeRoomRight();
-        }
-        if(e.key == "ArrowLeft"){
-            LOGIC.changeRoomLeft();
-
-        }
-    },
-    //END TEST
     processMouse: function(e){
         var rect = this.canvas.getBoundingClientRect();
         var canvas_x =  this.mouse_pos[0] = e.clientX - rect.left;

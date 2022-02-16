@@ -61,17 +61,10 @@ var LOGIC = {
         
     },
     //ONLY FOR TESTING
-    changeRoomRight(){
+    changeRoom(target_room){
         var msg = {
             type: "change_room",
-            room_id: WORLD.local_user.room_id + 1,
-        }
-        CLIENT.send(msg);
-    },
-    changeRoomLeft(){
-        var msg = {
-            type: "change_room",
-            room_id: WORLD.local_user.room_id - 1,
+            room_id: target_room
         }
         CLIENT.send(msg);
     },
@@ -176,47 +169,21 @@ var LOGIC = {
             }
         }
        
-
-    
-        /*
-        if ( msg.type == "text"){
-            displayMessageSend(msg);
-        }    
-        else if (msg.type == "position"){
-            var new_user = {};
-            new_user.id = msg.id;
-            new_user.position_x = msg.position_x;
-            addUserCanvas(new_user);
-        }
-        else if (msg.type == "position_history"){
-            for (let i = 0; i < msg.content.length; i++) {
-                var previous_user = {};
-                previous_user.id = msg.content[i].id;
-                previous_user.position_x = msg.content[i].position_x;
-                addUserCanvas(previous_user);
-            }
-        }
-        */
     },
     checkObjects: function(mouse_x, mouse_y){       
         var centerx = GFX.canvas.width * 0.5;
-
+        centerx -= WORLD.local_user.position[0];
         var room = WORLD.rooms[WORLD.local_user.room_id];
         for (var i = 0; i < room.sprites.length; i++){
-            if(room.sprites[i].src == "img/door_close.png"){
+            var sprite = room.sprites[i];
+            if(sprite.type == "door"){ //esto se puede reutilizar con los diferentes items
                 var object = room.sprites[i];
-                centerx -= WORLD.local_user.position[0];
                 var img = IMAGES[object.src];
                 var w = img.width;
                 var h = img.height;
                 if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
-                    console.log("touching object " + object.src);
-                    var a = {
-                        src:"img/door_open.png",
-                        x:50, 
-                        y:250
-                    }
-                    WORLD.rooms[WORLD.local_user.room_id].sprites.push(a);                  
+                    console.log("touching object " + JSON.stringify(object)); 
+                    this.changeRoom(sprite.target_room);          
                 }
 
             }
