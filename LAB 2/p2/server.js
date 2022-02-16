@@ -71,6 +71,30 @@ function onUserMessage(user,message){
         console.log(msg);
         sendMessageRoom(user,msg);
     }
+    //TESTING
+    if(msg.type == "change_room"){ //type:"change_room",room_id:(nueva room)
+        console.log(msg);
+        changeRoom(user,msg);
+    }
+}
+//TESTING
+function changeRoom(user,msg){
+
+    if(user.room_id != msg.room_id){
+
+        var old_room = WORLD.rooms[user.room_id];
+        var new_room =  WORLD.rooms[msg.room_id];
+
+        if(old_room && new_room){
+
+            old_room.leaveUser(user);
+
+            new_room.enterUser(user);
+
+            var msg = { type: "room", room: new_room.toJSON()};
+            user._connection.send(JSON.stringify(msg));
+        }
+    }
 }
 
 function sendMessageRoom(my_user, msg ){
@@ -118,21 +142,36 @@ function createUser(user,msg){
             console.log("NEW WEBSOCKET USER WITH ID "+ user.id);
         }
     }
-    WORLD.users.push(user);
-    WORLD.users_by_id[user.id] = user;
-    var room = WORLD.rooms[user.room_id]; 
-    room.enterUser(user);
-
-
-    if(user._connection){
-        var msg = { type: "login", user: user.toJSON()};
+    //check if it is already connected
+    var connected = WORLD.users_by_id[user.id];
+    if(connected){
+        user.id = -1;
+        var msg = { type: "connection_error", data: "User is already connected!"}
         user._connection.send(JSON.stringify(msg));
+        
+    }else{
+        WORLD.users.push(user);
+        WORLD.users_by_id[user.id] = user;
+        var room = WORLD.rooms[user.room_id]; 
+        room.enterUser(user);
 
-        var msg = { type: "room", room: room.toJSON()};
-        user._connection.send(JSON.stringify(msg));
 
-        var msg = {type:"users", room_id: room.id, users: room.getRoomUsers()};
-        user._connection.send(JSON.stringify(msg));
+        if(user._connection){
+            var msg = { type: "login", user: user.toJSON()};
+            user._connection.send(JSON.stringify(msg));
+
+            var msg = { type: "room", room: room.toJSON()};
+            user._connection.send(JSON.stringify(msg));
+
+            var msg = {type:"users", room_id: room.id, users: room.getRoomUsers()};
+            for (var i = 0; i < WORLD.users.length; i++)
+            {
+                msg.users[i].position = msg.users[i].target_position;
+                
+            }
+            console.log(JSON.stringify(msg));
+            user._connection.send(JSON.stringify(msg));
+        }
     }
 }
 
@@ -152,7 +191,7 @@ function onUserDisconnected(user){
     if(file_data){
         for(var i = 0; i<file_data.length;i++){
             if(file_data[i].id == user.id ){  
-              //variable fields (un poco hardcoded...)
+              //variable fields (un poco hardcoded...) quizas mejor metiendole el user entero
               file_data[i].position = user.position;
               file_data[i].target_position = user.target_position;
               file_data[i].room_id = user.room_id;

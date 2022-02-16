@@ -1,3 +1,4 @@
+const { WORLD } = require("./world");
 
 var LOGIC = {
     input_text: null,
@@ -11,7 +12,7 @@ var LOGIC = {
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
         //TEST TICK
-        setInterval(this.tick.bind(this), 500);
+        //setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
@@ -30,7 +31,7 @@ var LOGIC = {
             user: WORLD.local_user.toJSON()
         }
         CLIENT.send(update);
-    }
+      }
     },
 
     lerp: function(a,b,f)
@@ -55,13 +56,28 @@ var LOGIC = {
         }
         else {
             user.anim = "idle";
-            //user.position[0] = user.target_position[0];
+            user.position[0] = user.target_position[0];
         }
 
        
         
     },
-
+    //ONLY FOR TESTING
+    changeRoomRight(){
+        var msg = {
+            type: "change_room",
+            room_id: WORLD.local_user.room_id + 1,
+        }
+        CLIENT.send(msg);
+    },
+    changeRoomLeft(){
+        var msg = {
+            type: "change_room",
+            room_id: WORLD.local_user.room_id - 1,
+        }
+        CLIENT.send(msg);
+    },
+    //END OF TESTING
     onKeyDown: function(e)
     {
         if(e.code == "Enter"){
@@ -74,7 +90,7 @@ var LOGIC = {
         var str = "";
         str += this.input_text.value;
         // evita enviar cadenas vacías
-        if(this.input_text){
+        if(this.input_text.value){
             this.input_text.value = "";
             
             this.addText(str);
@@ -106,15 +122,26 @@ var LOGIC = {
     },
     onMessage: function(msg)
     {
-        if(msg.type != "users"){
-            console.log("RECEIVED: " + msg);
+        if(msg.type == "connection_error"){
+            var login = document.getElementById("login");
+            var chat_app = document.getElementById("chatApp");
+            var error = document.getElementById("error-display");
+            error.style.display = "block";
+            login.style.height = "550px";
+            login.style.display = "";
+            chat_app.style.display = "none";
+            CORE.server.close();
         }
+
         if (msg.type == "login"){
 
             WORLD.local_user = this.UpdateUserInfo(msg.user);
         }
         if (msg.type == "room"){
+
             var room = WORLD.rooms[msg.room.id];
+            WORLD.local_user.room_id = msg.room.id;
+
             if(!room){
                 room = new Room();
                 WORLD.rooms[msg.room.id] = room;
@@ -148,8 +175,8 @@ var LOGIC = {
                     room.leaveUser(user);
                 }
             }
+            }
         }
-     }
        
 
     
@@ -172,6 +199,31 @@ var LOGIC = {
             }
         }
         */
+    },
+    checkObjects: function(mouse_x, mouse_y){       
+        var centerx = GFX.canvas.width * 0.5;
+
+        var room = WORLD.rooms[WORLD.local_user.room_id];
+        for (var i = 0; i < room.sprites.length; i++){
+            if(room.sprites[i].src == "img/door_close.png"){
+                var object = room.sprites[i];
+                centerx -= WORLD.local_user.position[0];
+                var img = IMAGES[object.src];
+                var w = img.width;
+                var h = img.height;
+                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
+                    console.log("touching object " + object.src);
+                    var a = {
+                        src:"img/door_open.png",
+                        x:50, 
+                        y:250
+                    }
+                    WORLD.rooms[WORLD.local_user.room_id].sprites.push(a);                  
+                }
+
+            }
+            
+        }
     }
 }
 

@@ -51,6 +51,11 @@ body {
   border-style: solid;
   border-color: var(--border-color);
 }
+#login #error-display{
+  color: var(--disconected-color);
+  display:none;
+  text-align: center;
+}
 
 #login h3 {
   margin: 0;
