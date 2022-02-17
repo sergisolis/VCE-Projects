@@ -25,8 +25,7 @@ var GFX = {
     sprite_height: null,
     scale: 1,
 
-    objects_state: false,
-    objects : [],
+    room_width: 0,
 
     init: function(canvas)
     {
@@ -64,8 +63,13 @@ var GFX = {
         var anim = ANIMS[ user.anim];
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
-        ctx.drawImage(sprites, frame_index*32, row, 32, 64, centerx + user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
-       //user.position[0] = LOGIC.lerp (user.target_position[0], user.position[0], 0.9)
+        if (user.id == WORLD.local_user){
+            var actual_pos = map_range(50, 0,100,0,this.canvas.width);
+            ctx.drawImage(sprites, frame_index*32, row, 32, 64, actual_pos, 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
+        }else{
+            var actual_pos = map_range(user.target_position[0], 0,100,0,this.canvas.width);
+            ctx.drawImage(sprites, frame_index*32, row, 32, 64, centerx + user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
+        }       
 
         //name over user
         ctx.font = "50px VT323";
@@ -73,8 +77,9 @@ var GFX = {
         ctx.textAlign = "center";
         //user name
         if(user.id != WORLD.local_user.id){
-        var diff = parseInt(Math.abs(user.position[0] - WORLD.local_user.position[0]));
-        ctx.fillText(user.name+" ("+diff+") ", centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+            var actual_pos = map_range(50, 0,100,0,this.canvas.width);
+            var diff = parseInt(Math.abs(user.position[0] - WORLD.local_user.position[0]));
+            ctx.fillText(user.name+" ("+diff+") ", actual_pos + (this.sprite_width / 2 * this.scale), 640);
         }else{
             ctx.fillText(user.name, centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
         }
@@ -90,7 +95,7 @@ var GFX = {
         var bg = getImage("img/hall.png");
         ctx.imageSmoothingEnabled = false;
 
-        centerx -= main_user.position[0];
+        centerx -= map_range(main_user.position[0],-100,100,0,this.canvas.width);
         
         ctx.save();
         //ctx.translate(centerx,centery - bg.height * 0.5);

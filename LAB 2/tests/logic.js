@@ -1,3 +1,10 @@
+//maps a value from one domain to another
+function map_range( value, low1, high1, low2, high2) {
+	var range1 = high1 - low1;
+	var range2 = high2 - low2;
+    return low2 + range2 * (value - low1) / range1;
+};
+
 var LOGIC = {
     input_text: null,
     send_button: null,
@@ -32,11 +39,41 @@ var LOGIC = {
 
     lerp: function(a,b,f)
     {
-	return a * (1-f) + b * f;
+	    return a * (1-f) + b * f;
     },
 
     updateUserInput: function( dt, user )
     {
+        var diff = 0;
+        user.anim = "idle";
+        if(user.target_position[0] < 0){
+            user.anim = "walk";
+            user.facing = FACE_LEFT;
+            //user.target_room = user.room_position + user.target_position[0];
+            diff = Math.abs( user.room_position - user.target_room);
+            if ( diff > 1){
+                user.room_position =  this.lerp( user.room_position, user.target_room, 0.05 );
+                
+            }else {
+                user.anim = "idle";
+                
+            } 
+            
+        }
+        else if(user.target_position[0] > 0){
+            user.anim = "walk";
+            user.facing = FACE_RIGHT;
+            //user.target_room = user.room_position + user.target_position[0];
+            diff = Math.abs( user.room_position - user.target_room);
+            if ( diff > 1){
+                user.room_position =  this.lerp( user.room_position, user.target_room, 0.05 );
+                
+            }else {
+                user.anim = "idle";
+                
+            } 
+        }
+        /*
         user.anim = "idle";
 
         var diff = Math.abs(user.position[0] - user.target_position[0]);
@@ -53,10 +90,8 @@ var LOGIC = {
         else {
             user.anim = "idle";
             user.position[0] = user.target_position[0];
-        }
-
-       
-        
+        }        
+        */
     },
     //ONLY FOR TESTING
     changeRoom(target_room){
@@ -208,7 +243,24 @@ var LOGIC = {
             object: sprite
         }
         CLIENT.send(msg);
+    },
+    roomWidth: function(){
+        var total_background = 0;
+        var room = WORLD.rooms[WORLD.local_user.room_id];
+        console.log("Room: " + JSON.stringify(room))
+        for (var i = 0; i < room.sprites.length; i++){
+            var sprite = room.sprites[i];
+            if(sprite.type == "bg"){
+                var background = room.sprites[i];
+                var img = IMAGES[background.src];
+                var w = img.width;
+                total_background += w;
+            }
+        }
+        GFX.room_width = total_background;
+        return total_background;
     }
+
 }
 
 CORE.modules.push(LOGIC);
