@@ -50,9 +50,9 @@ var LOGIC = {
             user.anim = "walk";
             user.facing = FACE_LEFT;
             //user.target_room = user.room_position + user.target_position[0];
-            diff = Math.abs( user.room_position - user.target_room);
+            diff = Math.abs( user.position[0] - user.target_position[0]);
             if ( diff > 1){
-                user.room_position =  this.lerp( user.room_position, user.target_room, 0.05 );
+                user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
                 
             }else {
                 user.anim = "idle";
@@ -64,9 +64,9 @@ var LOGIC = {
             user.anim = "walk";
             user.facing = FACE_RIGHT;
             //user.target_room = user.room_position + user.target_position[0];
-            diff = Math.abs( user.room_position - user.target_room);
+            diff = Math.abs( user.position[0] - user.target_position[0]);
             if ( diff > 1){
-                user.room_position =  this.lerp( user.room_position, user.target_room, 0.05 );
+                user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
                 
             }else {
                 user.anim = "idle";

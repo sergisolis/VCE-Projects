@@ -81,11 +81,6 @@ var CORE = {
             this.mouse_pos[0] = WORLD.local_user.position[0] + canvas_pos;
             WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
 
-
-
-            this.mouse_pos[0] = target_x;
-            WORLD.local_user.target_position[0] = target_x;
-
             if(!LOGIC.checkObjects(canvas_x, canvas_y))
                 {
                     LOGIC.update_message();
