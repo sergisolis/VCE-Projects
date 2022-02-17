@@ -1,3 +1,4 @@
+
 var ANIMS = {
     idle: [0],
     walk: [2,3,4,5,6,7,8]
@@ -70,7 +71,13 @@ var GFX = {
         ctx.font = "50px VT323";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
-        ctx.fillText(user.name, centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        //user name
+        if(user.id != WORLD.local_user.id){
+        var diff = parseInt(Math.abs(user.position[0] - WORLD.local_user.position[0]));
+        ctx.fillText(user.name+" ("+diff+") ", centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        }else{
+            ctx.fillText(user.name, centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+        }
     },
 
     drawRoom: function(ctx, main_user)
@@ -151,12 +158,7 @@ var GFX = {
         var message_div = document.createElement("div");
         var profile_name = document.createElement('h3');
         var text = document.createElement('span');
-        if(message.distance){
-            profile_name.innerHTML = message.name + " (  "+message.distance+" ) ";
-        }
-        else{
-            profile_name.innerHTML = message.name;
-        }
+         profile_name.innerHTML = message.name;
         text.innerHTML = message.content;
         message_div.className = "msg";
         profile_name.className = "profileName";
@@ -168,6 +170,13 @@ var GFX = {
         message_div.appendChild(text);
         chat_div.appendChild(message_div);
         chat.appendChild(chat_div);
+    },
+
+    clearChat: function(){
+        var chat = document.querySelector("#chat1"); 
+        while (chat.firstChild) {
+            chat.removeChild(chat.lastChild);
+          }
     }
 
 };

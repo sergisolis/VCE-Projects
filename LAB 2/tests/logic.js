@@ -65,6 +65,7 @@ var LOGIC = {
             room_id: target_room
         }
         CLIENT.send(msg);
+        GFX.clearChat();
     },
     //END OF TESTING
     onKeyDown: function(e)
@@ -176,9 +177,14 @@ var LOGIC = {
             var sprite = room.sprites[i];
             if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"door"))
                 {
+                    this.changeObject(sprite);
                     this.changeRoom(sprite.target_room);  
                     return true; 
-                }          
+                } 
+            if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"lampara")){
+                this.changeObject(sprite);
+                    return true;
+            }         
         }
         return false
     },
@@ -195,6 +201,13 @@ var LOGIC = {
                 return false;
             }
         }
+    },
+    changeObject: function(sprite){
+        var msg = {
+            type: "change_object",
+            object: sprite
+        }
+        CLIENT.send(msg);
     }
 }
 

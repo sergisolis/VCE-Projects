@@ -107,8 +107,9 @@ var world_demo = {
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, target_room:1},
                 {src:"img/door_close.png", x:650, y:250, type:"door",state:false, target_room:2},
-                {src:"img/door_close.png", x:1250, y:250, type:"door",state:false, target_room:3}
-                //{src:"img/hall.png", x:-500, y:0}
+                {src:"img/door_close.png", x:1250, y:250, type:"door",state:false, target_room:3},
+                {src:"img/lampara.png", x:350, y:250, type:"lampara", state:false},
+                {src:"img/lampara.png", x:850, y:250, type:"lampara", state:false}
             ]
         },
         {

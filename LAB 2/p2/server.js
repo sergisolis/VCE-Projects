@@ -75,8 +75,22 @@ function onUserMessage(user,message){
     if(msg.type == "change_room"){ //type:"change_room",room_id:(nueva room)
         changeRoom(user,msg);
     }
+    if(msg.type == "change_object"){
+        changeObject(user,msg);
+    }
 }
 //TESTING
+function changeObject(user,msg){
+
+    var room = WORLD.rooms[user.room_id];
+    var type = msg.object.type;
+
+    for(var i = 0; i < room.sprites.length; i++){
+ 
+
+    }
+    
+}
 function changeRoom(user,msg){
 
     if(user.room_id != msg.room_id){
@@ -85,7 +99,6 @@ function changeRoom(user,msg){
         var new_room =  WORLD.rooms[msg.room_id];
 
         if(old_room && new_room){
-            console.log("USER "+user.id+" CHANGE FROM ROOM "+old_room.id+" TO ROOM " + new_room.id);
             //actualizar puertas tanto en old como new
            for(var i = 0; i < old_room.sprites.length; i++){
                if(old_room.sprites[i].type == "door"){
@@ -144,8 +157,7 @@ function sendMessageRoom(my_user, msg ){
     for(var i=0; i < room.room_users.length; i++){
         var user_id = room.room_users[i];
         var user = WORLD.users_by_id[user_id];
-        var distance = Math.abs(my_user.target_position[0] - user.target_position[0] );
-        msg.distance = distance;
+        var distance = Math.abs(my_user.target_position[0] - user.target_position[0] );//comprovar distancias despues
         if(my_user.id != user_id){
             if(user._connection){
                 user._connection.send(JSON.stringify(msg));
