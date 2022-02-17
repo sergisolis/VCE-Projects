@@ -115,6 +115,23 @@ function changeRoom(user,msg){
 
             var msg = { type: "room", room: new_room.toJSON()};
             user._connection.send(JSON.stringify(msg)); //HACE FALTA ENVIARLO A TODOS EN UN NUEVO TIPO DE MENSAJES QUE SOLO TE PASE LAS PUERTAS A TODOS
+            
+            var msg = {type:"users", room_id: new_room.id, users: new_room.getRoomUsers()};
+            for (var i = 0; i < new_room.room_users.length; i++)
+            {
+                msg.users[i].position = msg.users[i].target_position;
+
+                /*
+                if (msg.users[i].target_position != undefined){
+                    
+                }else{
+                    msg.users[i].position = [0,0];
+                }
+                */
+                
+            }
+            
+            user._connection.send(JSON.stringify(msg));
         }
     }
 }
@@ -186,12 +203,21 @@ function createUser(user,msg){
             user._connection.send(JSON.stringify(msg));
 
             var msg = {type:"users", room_id: room.id, users: room.getRoomUsers()};
-            for (var i = 0; i < WORLD.users.length; i++)
+            
+            for (var i = 0; i < room.room_users.length; i++)
             {
                 msg.users[i].position = msg.users[i].target_position;
+
+                /*
+                if (msg.users[i].target_position != undefined){
+                    
+                }else{
+                    msg.users[i].position = [0,0];
+                }
+                */
                 
             }
-            console.log(JSON.stringify(msg));
+            
             user._connection.send(JSON.stringify(msg));
         }
     }
