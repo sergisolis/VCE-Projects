@@ -53,7 +53,7 @@ var LOGIC = {
             diff = Math.abs( user.position[0] - user.target_position[0]);
             if ( diff > 1){
                 user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
-                
+                user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
             }else {
                 user.anim = "idle";
                 
@@ -67,7 +67,7 @@ var LOGIC = {
             diff = Math.abs( user.position[0] - user.target_position[0]);
             if ( diff > 1){
                 user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
-                
+                user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
             }else {
                 user.anim = "idle";
                 
