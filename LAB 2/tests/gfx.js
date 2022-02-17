@@ -151,7 +151,12 @@ var GFX = {
         var message_div = document.createElement("div");
         var profile_name = document.createElement('h3');
         var text = document.createElement('span');
-        profile_name.innerHTML = message.name;
+        if(message.distance){
+            profile_name.innerHTML = message.name + " (  "+message.distance+" ) ";
+        }
+        else{
+            profile_name.innerHTML = message.name;
+        }
         text.innerHTML = message.content;
         message_div.className = "msg";
         profile_name.className = "profileName";

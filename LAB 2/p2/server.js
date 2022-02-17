@@ -61,6 +61,7 @@ wsServer.on('request', function(request) {
 //FUNCTIONS
 function onUserMessage(user,message){
     var msg = JSON.parse(message.utf8Data);
+    console.log(JSON.stringify(msg));
     if(msg.type == "login"){
         createUser(user,msg);
     }
@@ -68,12 +69,10 @@ function onUserMessage(user,message){
         user.fromJSON(msg.user);
     }
    if(msg.type == "text"){
-        console.log(msg);
         sendMessageRoom(user,msg);
     }
     //TESTING
     if(msg.type == "change_room"){ //type:"change_room",room_id:(nueva room)
-        console.log(msg);
         changeRoom(user,msg);
     }
 }
@@ -86,7 +85,8 @@ function changeRoom(user,msg){
         var new_room =  WORLD.rooms[msg.room_id];
 
         if(old_room && new_room){
-
+            console.log("USER "+user.id+" CHANGE FROM ROOM "+old_room.id+" TO ROOM " + new_room.id);
+            //actualizar puertas tanto en old como new
            for(var i = 0; i < old_room.sprites.length; i++){
                if(old_room.sprites[i].type == "door"){
                    if(old_room.sprites[i].target_room == msg.room_id && old_room.sprites[i].state == false){
@@ -106,17 +106,20 @@ function changeRoom(user,msg){
                 }
             }
 
-
+            //saca usuario de la sala antigua
             old_room.leaveUser(user);
-
+            //mete usuario sala nueva
             new_room.enterUser(user);
-            user.position[0] = new_position;
-            user.target_position[0] = new_position;
-
+            //update server
+            var index = WORLD.users.map(function(e) { return e.id; }).indexOf(user.id);
+            WORLD.users[index].fromJSON(user);
+            WORLD.users_by_id[user.id] = user;
+            //envia la nueva room
             var msg = { type: "room", room: new_room.toJSON()};
             user._connection.send(JSON.stringify(msg)); //HACE FALTA ENVIARLO A TODOS EN UN NUEVO TIPO DE MENSAJES QUE SOLO TE PASE LAS PUERTAS A TODOS
             
             var msg = {type:"users", room_id: new_room.id, users: new_room.getRoomUsers()};
+
             for (var i = 0; i < new_room.room_users.length; i++)
             {
                 msg.users[i].position = msg.users[i].target_position;
@@ -140,8 +143,10 @@ function sendMessageRoom(my_user, msg ){
     var room = WORLD.rooms[my_user.room_id];
     for(var i=0; i < room.room_users.length; i++){
         var user_id = room.room_users[i];
+        var user = WORLD.users_by_id[user_id];
+        var distance = Math.abs(my_user.target_position[0] - user.target_position[0] );
+        msg.distance = distance;
         if(my_user.id != user_id){
-            var user = WORLD.users_by_id[user_id];
             if(user._connection){
                 user._connection.send(JSON.stringify(msg));
             }
@@ -189,6 +194,7 @@ function createUser(user,msg){
         user._connection.send(JSON.stringify(msg));
         
     }else{
+        
         WORLD.users.push(user);
         WORLD.users_by_id[user.id] = user;
         var room = WORLD.rooms[user.room_id]; 
@@ -297,8 +303,13 @@ function Tick(){
                 }
                 user._connection.send (JSON.stringify(msg));
             }
-            
-        }
+          }
     }
 }
+
+//test
+function WorldTick(){
+    console.log("USERS: "+JSON.stringify(WORLD.users));
+}
+setInterval(WorldTick,5000);
 setInterval(Tick, 1000);

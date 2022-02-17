@@ -9,8 +9,6 @@ var LOGIC = {
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
 
-        //TEST TICK
-        //setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
@@ -22,7 +20,7 @@ var LOGIC = {
         }
     },
     
-    tick: function(){
+    update_message: function(){
         if(WORLD.local_user){
         var update = {
             type: "user_update",
@@ -176,18 +174,26 @@ var LOGIC = {
         var room = WORLD.rooms[WORLD.local_user.room_id];
         for (var i = 0; i < room.sprites.length; i++){
             var sprite = room.sprites[i];
-            if(sprite.type == "door"){ //esto se puede reutilizar con los diferentes items
-                var object = room.sprites[i];
-                var img = IMAGES[object.src];
-                var w = img.width;
-                var h = img.height;
-                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
-                    console.log("touching object " + JSON.stringify(object)); 
-                    this.changeRoom(sprite.target_room);          
-                }
-
+            if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"door"))
+                {
+                    this.changeRoom(sprite.target_room);  
+                    return true; 
+                }          
+        }
+        return false
+    },
+    checkObjectConditions: function(centerx,mouse_x,mouse_y,sprite,type){
+        if(sprite.type == type){ //esto se puede reutilizar con los diferentes items
+            var object = sprite;
+            var img = IMAGES[object.src];
+            var w = img.width;
+            var h = img.height;
+            if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
+                return true;         
             }
-            
+            else{
+                return false;
+            }
         }
     }
 }
