@@ -25,6 +25,8 @@ var GFX = {
     sprite_height: null,
     scale: 1,
 
+    min_room_pos: 0,
+    max_room_pos: 0,
     room_width: 0,
 
     init: function(canvas)

@@ -100,10 +100,10 @@ var world_demo = {
     rooms : [
         {
             sprites: [
+                {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:0, y:0 ,type:"bg"},
                 {src:"img/background.png", x:1344, y:0, type:"bg"},
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
-                {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, target_room:1},
                 {src:"img/door_close.png", x:650, y:250, type:"door",state:false, target_room:2},

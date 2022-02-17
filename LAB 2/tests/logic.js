@@ -51,7 +51,7 @@ var LOGIC = {
             user.facing = FACE_LEFT;
             //user.target_room = user.room_position + user.target_position[0];
             diff = Math.abs( user.position[0] - user.target_position[0]);
-            if ( diff > 1){
+            if ( diff > 1 && user.position[0] >= GFX.min_room_pos){
                 user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
                 user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
             }else {
@@ -65,7 +65,7 @@ var LOGIC = {
             user.facing = FACE_RIGHT;
             //user.target_room = user.room_position + user.target_position[0];
             diff = Math.abs( user.position[0] - user.target_position[0]);
-            if ( diff > 1){
+            if ( diff > 1 && user.position[0] <= GFX.max_room_pos){
                 user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
                 user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
             }else {
@@ -245,22 +245,46 @@ var LOGIC = {
         CLIENT.send(msg);
     },
     roomWidth: function(){
+        var min_pos = 1000000;
+        var max_pos = -1000000;
+
+        var min_width = 1000000;
+        var max_width = -1000000;
+
+
         var total_background = 0;
         var room = WORLD.rooms[WORLD.local_user.room_id];
         console.log("Room: " + JSON.stringify(room))
         for (var i = 0; i < room.sprites.length; i++){
             var sprite = room.sprites[i];
             if(sprite.type == "bg"){
+                if (sprite.x <= min_pos){
+                    min_pos = sprite.x;
+                }
+                if (sprite.x >= max_pos){
+                    max_pos = sprite.x;
+                }
                 var background = room.sprites[i];
                 var img = IMAGES[background.src];
                 var w = img.width;
+                if (img.width <= min_width){
+                    min_width = img.width;
+                }
+                if (img.width >= max_width){
+                    max_width = img.width;
+                }
                 total_background += w;
             }
         }
+        var min_room_pos = min_pos + (min_width / 2);
+        var max_room_pos = max_pos + (max_width / 2);
+
+        GFX.min_room_pos = map_range(min_room_pos, 0, GFX.canvas.width, -100, 100);
+        GFX.max_room_pos = map_range(max_room_pos, 0, GFX.canvas.width, -100, 100);
+
         GFX.room_width = total_background;
         return total_background;
-    }
-
+    },
 }
 
 CORE.modules.push(LOGIC);
