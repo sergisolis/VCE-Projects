@@ -54,7 +54,7 @@ var GFX = {
     drawCharacter: function (ctx, sprites, user)
     {
         var centerx = canvas.width * 0.5;
-        centerx -= WORLD.local_user.position[0];
+        centerx -= map_range(WORLD.local_user.position[0],-100,100,0,this.canvas.width);
 
         var w = 32; //sprite width
 	    var h = 64; //sprite height
@@ -63,12 +63,12 @@ var GFX = {
         var anim = ANIMS[ user.anim];
         var frame_index = anim[Math.floor(t * 10) % anim.length];
         var row = user.facing * 64;
-        if (user.id == WORLD.local_user){
+        if (user.id == WORLD.local_user.id){
             var actual_pos = map_range(50, 0,100,0,this.canvas.width);
             ctx.drawImage(sprites, frame_index*32, row, 32, 64, actual_pos, 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
         }else{
-            var actual_pos = map_range(user.target_position[0], 0,100,0,this.canvas.width);
-            ctx.drawImage(sprites, frame_index*32, row, 32, 64, centerx + user.position[0], 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
+            var actual_pos = map_range(user.target_position[0], -100,100,0,this.canvas.width);
+            ctx.drawImage(sprites, frame_index*32, row, 32, 64, centerx + actual_pos, 650, this.sprite_width * this.scale, this.sprite_height * this.scale);
         }       
 
         //name over user
@@ -77,11 +77,12 @@ var GFX = {
         ctx.textAlign = "center";
         //user name
         if(user.id != WORLD.local_user.id){
-            var actual_pos = map_range(50, 0,100,0,this.canvas.width);
+            var actual_pos = map_range(user.position[0], -100,100,0,this.canvas.width);
             var diff = parseInt(Math.abs(user.position[0] - WORLD.local_user.position[0]));
-            ctx.fillText(user.name+" ("+diff+") ", actual_pos + (this.sprite_width / 2 * this.scale), 640);
+            ctx.fillText(user.name+" ("+diff+") ", centerx + actual_pos + (this.sprite_width / 2 * this.scale), 640);
         }else{
-            ctx.fillText(user.name, centerx + user.position[0] + (this.sprite_width / 2 * this.scale), 640);
+            var actual_pos = map_range(50, 0,100,0,this.canvas.width);
+            ctx.fillText(user.name, actual_pos + (this.sprite_width / 2 * this.scale), 640);
         }
     },
 

@@ -78,7 +78,7 @@ var CORE = {
             var room_pos = map_range(target_x, 0, room_width, 0, 100);
             console.log("X mapeada: " + canvas_pos);
 
-            this.mouse_pos[0] = WORLD.local_user.position[0] + canvas_pos;
+            this.mouse_pos[0] = canvas_pos;
             WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
 
             if(!LOGIC.checkObjects(canvas_x, canvas_y))

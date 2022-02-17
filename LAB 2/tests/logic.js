@@ -46,7 +46,7 @@ var LOGIC = {
     {
         var diff = 0;
         user.anim = "idle";
-        if(user.target_position[0] < 0){
+        if((user.target_position[0] - user.position[0])  < 0){
             user.anim = "walk";
             user.facing = FACE_LEFT;
             //user.target_room = user.room_position + user.target_position[0];
@@ -60,7 +60,7 @@ var LOGIC = {
             } 
             
         }
-        else if(user.target_position[0] > 0){
+        else if((user.target_position[0] - user.position[0]) > 0){
             user.anim = "walk";
             user.facing = FACE_RIGHT;
             //user.target_room = user.room_position + user.target_position[0];
@@ -206,7 +206,7 @@ var LOGIC = {
     },
     checkObjects: function(mouse_x, mouse_y){       
         var centerx = GFX.canvas.width * 0.5;
-        centerx -= WORLD.local_user.position[0];
+        centerx -= map_range(WORLD.local_user.position[0],-100,100,0,GFX.canvas.width);
         var room = WORLD.rooms[WORLD.local_user.room_id];
         for (var i = 0; i < room.sprites.length; i++){
             var sprite = room.sprites[i];
