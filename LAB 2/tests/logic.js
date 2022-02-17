@@ -173,6 +173,10 @@ var LOGIC = {
             }
             room.fromJSON( msg.room);
         }
+        if (msg.type == "change_object"){
+            var room = WORLD.rooms[msg.room.id];
+            room.fromJSON(msg.room);
+        }
         if ( msg.type == "text"){
             GFX.displayText(msg, CLIENT.name);
         }
@@ -218,7 +222,7 @@ var LOGIC = {
                 } 
             if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"lampara")){
                 this.changeObject(sprite);
-                    return true;
+                return true;
             }         
         }
         return false

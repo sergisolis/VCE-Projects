@@ -61,7 +61,7 @@ wsServer.on('request', function(request) {
 //FUNCTIONS
 function onUserMessage(user,message){
     var msg = JSON.parse(message.utf8Data);
-    console.log(JSON.stringify(msg));
+    
     if(msg.type == "login"){
         createUser(user,msg);
     }
@@ -77,19 +77,69 @@ function onUserMessage(user,message){
     }
     if(msg.type == "change_object"){
         changeObject(user,msg);
+        console.log(JSON.stringify(msg));
     }
 }
 //TESTING
 function changeObject(user,msg){
 
-    var room = WORLD.rooms[user.room_id];
-    var type = msg.object.type;
+    //var room = WORLD.rooms[user.room_id];
+    var object = msg.object;
 
-    for(var i = 0; i < room.sprites.length; i++){
- 
+    if(object.type == "door"){
+        var old_room = WORLD.rooms[object.from_room];
+        var new_room = WORLD.rooms[object.target_room];
+
+        travelSprites(object, old_room.sprites, "img/door_open.png");
+        travelSprites(object, new_room.sprites, "img/door_open.png");
+
+        var msg1 = { type: "change_object", room: old_room.toJSON()};
+        var msg2 = { type: "change_object", room: new_room.toJSON()};
+
+        for(var i=0; i < old_room.room_users.length; i++){
+            var user_id = old_room.room_users[i];
+            var user = WORLD.users_by_id[user_id];
+            user._connection.send(JSON.stringify(msg1));
+        }
+        for(var i=0; i < new_room.room_users.length; i++){
+            var user_id = new_room.room_users[i];
+            var user = WORLD.users_by_id[user_id];
+            user._connection.send(JSON.stringify(msg2));
+        }
+
 
     }
+    if(object.type == "lampara"){
+        var room = WORLD.rooms[user.room_id];
+        travelSprites(object, room.sprites, "img/lampara_on.png", true, "img/lampara.png");
+
+        var msg = { type: "change_object", room: room.toJSON()};
+
+        for(var i=0; i < room.room_users.length; i++){
+            var user_id = room.room_users[i];
+            var user = WORLD.users_by_id[user_id];
+            user._connection.send(JSON.stringify(msg));
+        }
+    }
     
+    
+}
+
+function travelSprites(object, room_sprites, src,onof,src2){
+    for(var i = 0; i < room_sprites.length; i++){
+        if(room_sprites[i].type == object.type){
+            if(room_sprites[i].id == object.id){
+                if(!room_sprites[i].state){
+                    room_sprites[i].src = src;
+                    room_sprites[i].state = true;
+                }
+                else if(onof && room_sprites[i].state){
+                    room_sprites[i].src = src2;
+                    room_sprites[i].state = false;
+                }
+            }
+        }
+    }
 }
 function changeRoom(user,msg){
 
@@ -99,25 +149,6 @@ function changeRoom(user,msg){
         var new_room =  WORLD.rooms[msg.room_id];
 
         if(old_room && new_room){
-            //actualizar puertas tanto en old como new
-           for(var i = 0; i < old_room.sprites.length; i++){
-               if(old_room.sprites[i].type == "door"){
-                   if(old_room.sprites[i].target_room == msg.room_id && old_room.sprites[i].state == false){
-                        old_room.sprites[i].src = "img/door_open.png";
-                        old_room.sprites[i].state = true;
-                   }
-               }
-           }
-           var new_position = 0;
-           for(var i = 0; i < new_room.sprites.length; i++){
-                if(new_room.sprites[i].type == "door"){
-                    if(new_room.sprites[i].target_room == user.room_id && new_room.sprites[i].state == false){
-                        new_room.sprites[i].src = "img/door_open.png";
-                        new_room.sprites[i].state = true;
-                        new_position = new_room.sprites[i].x;
-                    }
-                }
-            }
 
             //saca usuario de la sala antigua
             old_room.leaveUser(user);
@@ -282,19 +313,27 @@ function readFileJSON(){
       }
 }
 
-/*function doorTick(){
+function doorTick(){
     for(var i in WORLD.rooms){
           var room = WORLD.rooms[i];
-          var doors = room.sprites.doors;
-          for(var j in doors){
-              if(doors[j].src = "img/door_opened"){
-                  doors[j],src = "img/door_closed";
-              }
-          }
+          for(var j = 0; j < room.sprites.length; j++){
+                if(room.sprites[j].type == "door"){
+                    if(room.sprites[j].state){
+                        room.sprites[j].src = "img/door_close.png";
+                        room.sprites[j].state = false;
+                    }
+                }
+            }
+            for(var j = 0; j< room.room_users.length; j++){
+                var user_id = room.room_users[j];
+                var user = WORLD.users_by_id[user_id];
+                var msg = { type: "change_object", room: room.toJSON()};
+                user._connection.send(JSON.stringify(msg));
+            }
     }
 }
 
-setInterval(doorTick(), 1000);*/
+setInterval(doorTick, 10000);
 
 function Tick(){
 
@@ -319,9 +358,4 @@ function Tick(){
     }
 }
 
-//test
-function WorldTick(){
-    console.log("USERS: "+JSON.stringify(WORLD.users));
-}
-setInterval(WorldTick,5000);
 setInterval(Tick, 1000);
