@@ -68,21 +68,22 @@ var CORE = {
     
         if(e.type == "mousedown")
         {
-            var target_x = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
-
-            var room_width = LOGIC.roomWidth();
-            GFX.room_width = room_width;
-            console.log(room_width);
-
-            var canvas_pos = map_range(target_x, 0, GFX.canvas.width, -100, 100);
-            var room_pos = map_range(target_x, 0, room_width, 0, 100);
-            console.log("X mapeada: " + canvas_pos);
-
-            this.mouse_pos[0] = canvas_pos;
-            WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
 
             if(!LOGIC.checkObjects(canvas_x, canvas_y))
                 {
+                    var target_x = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
+
+                    var room_width = LOGIC.roomWidth();
+                    GFX.room_width = room_width;
+                    console.log(room_width);
+        
+                    var canvas_pos = map_range(target_x, 0, GFX.canvas.width, -100, 100);
+                    var room_pos = map_range(target_x, 0, room_width, 0, 100);
+                    console.log("X mapeada: " + canvas_pos);
+
+                    this.mouse_pos[0] = canvas_pos;
+                    WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
+
                     LOGIC.update_message();
                 }
  
