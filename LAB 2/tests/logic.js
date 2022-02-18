@@ -262,20 +262,16 @@ var LOGIC = {
         for (var i = 0; i < room.sprites.length; i++){
             var sprite = room.sprites[i];
             if(sprite.type == "bg"){
-                if (sprite.x <= min_pos){
-                    min_pos = sprite.x;
-                }
-                if (sprite.x >= max_pos){
-                    max_pos = sprite.x;
-                }
                 var background = room.sprites[i];
                 var img = IMAGES[background.src];
                 var w = img.width;
-                if (img.width <= min_width){
-                    min_width = img.width;
+                if (sprite.x <= min_pos){
+                    min_pos = sprite.x;
+                    min_width = w;
                 }
-                if (img.width >= max_width){
-                    max_width = img.width;
+                if (sprite.x >= max_pos){
+                    max_pos = sprite.x;
+                    max_width = w;
                 }
                 total_background += w;
             }
