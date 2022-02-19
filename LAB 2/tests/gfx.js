@@ -160,9 +160,7 @@ var GFX = {
     },
 
     displayText: function(message, my_name){
-        var chat = document.querySelector("#chat1"); 
-        var chat_div = document.createElement("div");
-        chat_div.className = "chat"
+        var chat = document.querySelector("#chat"); 
         var message_div = document.createElement("div");
         var profile_name = document.createElement('h3');
         var text = document.createElement('span');
@@ -172,12 +170,13 @@ var GFX = {
         profile_name.className = "profileName";
         text.className = message.type;
         if (message.name == my_name){   
-            profile_name.style.color = "orange";
+            profile_name.style.color = "#002830";
+            message_div.style.background = "#00677C";
         }
         message_div.appendChild(profile_name);
         message_div.appendChild(text);
-        chat_div.appendChild(message_div);
-        chat.appendChild(chat_div);
+        chat.appendChild(message_div);
+        CORE.chat_zone.scrollTop = 1000000;
     },
 
     clearChat: function(){
@@ -185,8 +184,9 @@ var GFX = {
         while (chat.firstChild) {
             chat.removeChild(chat.lastChild);
           }
-    }
+    },
 
+    
 };
 
 CORE.modules.push(GFX);

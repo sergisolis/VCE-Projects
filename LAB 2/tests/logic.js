@@ -8,13 +8,23 @@ function map_range( value, low1, high1, low2, high2) {
 var LOGIC = {
     input_text: null,
     send_button: null,
+    emoji_button: null,
+    emoji_table: null,
+    emojis: null,
 
     init: function(){
         this.input_text = document.querySelector("input.input");
         this.send_button = document.querySelector("button.buttonSend");
+        this.emoji_button = document.querySelector(".emojiButton");
+        this.emoji_table = document.querySelector(".emojisTable");
+        this.emojis = document.querySelectorAll(".emojis")
+        
+
         //bind events
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
+        this.emoji_button.addEventListener("click", this.displayEmojiTable.bind(this));
+        this.inputAddEmoji();
 
     },
 
@@ -73,25 +83,7 @@ var LOGIC = {
                 
             } 
         }
-        /*
-        user.anim = "idle";
 
-        var diff = Math.abs(user.position[0] - user.target_position[0]);
-
-        if(user.position[0] < user.target_position[0] && diff > 5){
-            user.anim = "walk";
-            user.facing = FACE_RIGHT;
-            user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
-        } else if(user.position[0] > user.target_position[0] && diff > 5) {
-            user.anim = "walk";
-            user.facing = FACE_LEFT;
-            user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
-        }
-        else {
-            user.anim = "idle";
-            user.position[0] = user.target_position[0];
-        }        
-        */
     },
     //ONLY FOR TESTING
     changeRoom(target_room){
@@ -134,6 +126,24 @@ var LOGIC = {
         GFX.displayText(msg, CLIENT.name);
 
     },
+
+    displayEmojiTable: function(){
+        if(this.emoji_table.style.display == "none"){
+            this.emoji_table.style.display = "";
+        }else{
+            this.emoji_table.style.display = "none";
+        }
+    },
+
+    inputAddEmoji: function(){           
+    
+        for (let i = 0; i < this.emojis.length; i++) {
+            this.emojis[i].addEventListener("click", function(){
+                this.input_text.value = this.input_text.value + this.emojis[i].innerHTML;
+            }.bind(this));
+        }
+    },
+
     UpdateUserInfo: function(user_info){
         var user = WORLD.users_by_id[user_info.id];
         if(!user)

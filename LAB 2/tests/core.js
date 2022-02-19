@@ -3,7 +3,9 @@ var CORE = {
     last_time:null,
     canvas: null,
     server: null,
+    avatar_selector: null,
     login_button: null,
+    chat_zone: null,
     mouse_pos: [0,0],
     
     modules: [],
@@ -14,7 +16,9 @@ var CORE = {
     init: function(){
         this.last_time = performance.now();
         this.canvas = document.querySelector("#canvas");
+        this.avatar_selector = document.getElementById("avatar-select");
         this.login_button = document.querySelector("#login input[type='submit']");
+        this.chat_zone = document.querySelector(".chatZone");
 
         GFX.init(this.canvas);
         WORLD.init();
@@ -25,6 +29,7 @@ var CORE = {
         */
 
         //bind events
+        this.avatar_selector.addEventListener("click", this.selectAvatar.bind(this));
         this.login_button.addEventListener("click", this.login.bind(this));
         this.canvas.addEventListener("mousedown", this.processMouse.bind(this));
         this.canvas.addEventListener("mousemove", this.processMouse.bind(this));
@@ -51,6 +56,19 @@ var CORE = {
             this.server = new WebSocket(this.server_url);
             CLIENT.init(this.server, login_name, login_password, login_avatar_id); 
         } 
+    },
+
+    selectAvatar: function(){
+        var length = this.avatar_selector.length;
+        var option = this.avatar_selector.value;
+        for (let i = 1; i <= length; i++) {
+            var avatar_img = document.getElementById("avatar" + i);
+            if (i == option){
+                avatar_img.style.display = "";
+            }else{
+                avatar_img.style.display = "none";
+            }
+        }
     },
 
     draw: function() 
@@ -88,25 +106,13 @@ var CORE = {
                 }
  
         }
-        else if(e.type == "mousemove")
-        {
-    
-        }
-        else //mouseup
-        {
-        }
+
     },
 
     loop: function(){
         
         this.draw();
-        /*
-        if(users.length){
-                for (let i = 0; i < users.length; i++) {
-                    draw_other(i);
-                }  
-        }
-        */
+
         //to compute seconds since last loop
         var now = performance.now();
         //compute difference and convert to seconds
