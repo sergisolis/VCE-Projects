@@ -27,7 +27,6 @@ var CLIENT = {
     },
 
     processMessage: function(e){
-        console.log(e.data);
         var msg = JSON.parse(e.data);
         LOGIC.onMessage(msg)
         

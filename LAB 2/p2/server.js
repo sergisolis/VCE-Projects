@@ -144,7 +144,7 @@ function changeRoom(user,msg){
 
         var old_room = WORLD.rooms[user.room_id];
         var new_room =  WORLD.rooms[msg.room_id];
-
+        console.log("USER "+user.id+" CHANGE FROM ROOM "+old_room.id+" TO ROOM "+new_room.id);
         if(old_room && new_room){
             //remove user from old room
             old_room.leaveUser(user);

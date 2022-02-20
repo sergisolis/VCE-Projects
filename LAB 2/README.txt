@@ -1,4 +1,7 @@
 APP WORKFLOW
+      STRUCTURE
+        -p2 contains all the server side files 
+        -www contains all the client side files
 
     LOGIN
         - On enter, the user must enter three required fields (name, password, avatar) and click the login button in order to create the websocket connection.
@@ -6,6 +9,7 @@ APP WORKFLOW
         - We decided to store any previous user of the world with the credential pair (name, password).
         - If the user is new server will create the new user and add it on a JSON file.
         - If the user exists, server should load the last state of the user from the JSON file.
+        * Server saves the state of every user when he closes de webscocket connection
 
     WORLD
         - Website layout is composed by the canvas and the chat.

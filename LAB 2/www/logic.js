@@ -275,7 +275,6 @@ var LOGIC = {
 
         var total_background = 0;
         var room = WORLD.rooms[WORLD.local_user.room_id];
-        console.log("Room: " + JSON.stringify(room))
         for (var i = 0; i < room.sprites.length; i++){
             var sprite = room.sprites[i];
             if(sprite.type == "bg"){

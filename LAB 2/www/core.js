@@ -89,11 +89,9 @@ var CORE = {
 
                     var room_width = LOGIC.roomWidth();
                     GFX.room_width = room_width;
-                    console.log(room_width);
         
                     var canvas_pos = map_range(target_x, 0, GFX.canvas.width, -100, 100);
                     var room_pos = map_range(target_x, 0, room_width, 0, 100);
-                    console.log("X mapeada: " + canvas_pos);
 
                     this.mouse_pos[0] = canvas_pos;
                     WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
