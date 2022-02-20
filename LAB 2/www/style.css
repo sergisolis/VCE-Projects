@@ -211,7 +211,7 @@ body {
   margin-left: -18px;
   width: 0;
   height: 0;
-  border-top: solid 10px var(--selected-chat-color);
+  border-top: solid 10px #002830;
   border-left: solid 10px transparent;
   border-right: solid 10px transparent;
 }

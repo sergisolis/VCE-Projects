@@ -8,12 +8,63 @@
       0
     ],
     "target_position": [
-      897,
+      -12.519918663702938,
+      0
+    ],
+    "anim": "idle",
+    "facing": 2,
+    "room_id": 1,
+    "avatar_id": 1
+  },
+  {
+    "id": 2,
+    "name": "a",
+    "position": [
+      0,
+      0
+    ],
+    "target_position": [
+      478.2044919119526,
       0
     ],
     "anim": "idle",
     "facing": 0,
     "room_id": 0,
-    "avatar_id": 1
+    "avatar_id": 1,
+    "password": "a"
+  },
+  {
+    "id": 3,
+    "name": "b",
+    "position": [
+      0,
+      0
+    ],
+    "target_position": [
+      4.5927981859766405,
+      0
+    ],
+    "anim": "idle",
+    "facing": 2,
+    "room_id": 0,
+    "avatar_id": 1,
+    "password": "b"
+  },
+  {
+    "id": 4,
+    "name": "c",
+    "position": [
+      0,
+      0
+    ],
+    "target_position": [
+      0,
+      0
+    ],
+    "anim": "idle",
+    "facing": 0,
+    "room_id": 0,
+    "avatar_id": 1,
+    "password": "c"
   }
 ]

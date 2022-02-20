@@ -151,10 +151,14 @@ var LOGIC = {
         if(!user)
         {
             user = new User();
+            user.fromJSON(user_info);
             WORLD.users.push (user);
             WORLD.users_by_id[user_info.id] =  user;
+        }else
+        {
+            user.fromJSON(user_info);
         }
-        user.fromJSON(user_info);
+
         return user;
     },
     //On message received perform different acctions depending on the protocol

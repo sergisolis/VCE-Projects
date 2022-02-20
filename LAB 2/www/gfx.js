@@ -45,6 +45,7 @@ var GFX = {
         ctx = canvas.getContext("2d");
 
         if(WORLD.local_user){
+             document.body.style.background = "black";
              this.drawRoom(ctx, WORLD.local_user);
         }else{
                 ctx.fillStyle = "white";
