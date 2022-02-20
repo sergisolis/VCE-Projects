@@ -1,4 +1,4 @@
-// importamos las librerías requeridas
+//Import libraries
 
 const http = require('http'),
       WebSocketServer = require('websocket').server,
@@ -6,7 +6,7 @@ const http = require('http'),
       fs = require('fs'),
       users_json = "./users.json";
 
-//vars y const globales
+//Global consts
 
 const port = 9026;
 const second_port = 9027;
@@ -36,11 +36,10 @@ const { strictEqual } = require('assert');
 var world = require('./world.js');
 var WORLD = world.WORLD;
 
-//var last_id = 0; //provisional --> change to json file etc..
-
 //create world
 WORLD.fromJSON();
 
+//WebSocket core 
 wsServer.on('request', function(request) {
 
     var connection = request.accept(null,request.origin);
@@ -58,7 +57,7 @@ wsServer.on('request', function(request) {
 
 });
 
-//FUNCTIONS
+//Function that selects the msg type and perform an action according to it
 function onUserMessage(user,message){
     var msg = JSON.parse(message.utf8Data);
     
@@ -69,21 +68,19 @@ function onUserMessage(user,message){
         user.fromJSON(msg.user);
     }
    if(msg.type == "text"){
+       console.log(JSON.stringify(msg));
         sendMessageRoom(user,msg);
     }
-    //TESTING
-    if(msg.type == "change_room"){ //type:"change_room",room_id:(nueva room)
+    if(msg.type == "change_room"){ 
         changeRoom(user,msg);
     }
     if(msg.type == "change_object"){
         changeObject(user,msg);
-        console.log(JSON.stringify(msg));
     }
 }
-//TESTING
+//Function to change the state of an object
 function changeObject(user,msg){
 
-    //var room = WORLD.rooms[user.room_id];
     var object = msg.object;
 
     if(object.type == "door"){
@@ -120,11 +117,10 @@ function changeObject(user,msg){
             var user = WORLD.users_by_id[user_id];
             user._connection.send(JSON.stringify(msg));
         }
-    }
-    
-    
+    }   
 }
 
+//Helper function to travel all the sprites of one room
 function travelSprites(object, room_sprites, src,onof,src2){
     for(var i = 0; i < room_sprites.length; i++){
         if(room_sprites[i].type == object.type){
@@ -141,6 +137,7 @@ function travelSprites(object, room_sprites, src,onof,src2){
         }
     }
 }
+//Function to change the room of the user
 function changeRoom(user,msg){
 
     if(user.room_id != msg.room_id){
@@ -149,54 +146,45 @@ function changeRoom(user,msg){
         var new_room =  WORLD.rooms[msg.room_id];
 
         if(old_room && new_room){
-
-            //saca usuario de la sala antigua
+            //remove user from old room
             old_room.leaveUser(user);
-            //mete usuario sala nueva
+            //add user to the new room
             new_room.enterUser(user);
             //update server
             var index = WORLD.users.map(function(e) { return e.id; }).indexOf(user.id);
             WORLD.users[index].fromJSON(user);
             WORLD.users_by_id[user.id] = user;
-            //envia la nueva room
+            //send new room
             var msg = { type: "room", room: new_room.toJSON()};
-            user._connection.send(JSON.stringify(msg)); //HACE FALTA ENVIARLO A TODOS EN UN NUEVO TIPO DE MENSAJES QUE SOLO TE PASE LAS PUERTAS A TODOS
-            
+            user._connection.send(JSON.stringify(msg)); 
             var msg = {type:"users", room_id: new_room.id, users: new_room.getRoomUsers()};
 
             for (var i = 0; i < new_room.room_users.length; i++)
             {
                 msg.users[i].position = msg.users[i].target_position;
-
-                /*
-                if (msg.users[i].target_position != undefined){
-                    
-                }else{
-                    msg.users[i].position = [0,0];
-                }
-                */
-                
             }
             
             user._connection.send(JSON.stringify(msg));
         }
     }
 }
-
+//Function to send text to the other users of the room, we decided to define 800px min distance to receive the message
 function sendMessageRoom(my_user, msg ){
     var room = WORLD.rooms[my_user.room_id];
     for(var i=0; i < room.room_users.length; i++){
         var user_id = room.room_users[i];
         var user = WORLD.users_by_id[user_id];
-        var distance = Math.abs(my_user.target_position[0] - user.target_position[0] );//comprovar distancias despues
-        if(my_user.id != user_id){
+        var distance = Math.abs(my_user.target_position[0] - user.target_position[0] );
+        if(my_user.id != user_id  && distance < 300){
             if(user._connection){
                 user._connection.send(JSON.stringify(msg));
             }
         }
     }
 }
-
+//Function to create the user 
+//case 1:  the user already exist by username-password key values on the json file and values are sent to the client
+//case 2: the user is new, we add the new register on the file and send the "default" values to the client
 function createUser(user,msg){
     var new_user = true;
     var file_data = readFileJSON();
@@ -219,7 +207,6 @@ function createUser(user,msg){
             user.room_id = 0; //default on room 0
             var {_connection, ...stored_user} = user;
             file_data.push(stored_user);
-            console.log(stored_user);
             fs.writeFile(users_json, JSON.stringify(file_data,null,2 ) , err => {
                 if (err) {
                     console.log('Error writing file', err)
@@ -256,15 +243,6 @@ function createUser(user,msg){
             for (var i = 0; i < room.room_users.length; i++)
             {
                 msg.users[i].position = msg.users[i].target_position;
-
-                /*
-                if (msg.users[i].target_position != undefined){
-                    
-                }else{
-                    msg.users[i].position = [0,0];
-                }
-                */
-                
             }
             
             user._connection.send(JSON.stringify(msg));
@@ -272,6 +250,7 @@ function createUser(user,msg){
     }
 }
 
+//Function on user disconnected
 function onUserDisconnected(user){
     var index = WORLD.users.map(function(e) { return e.id; }).indexOf(user.id);
     if(index != -1 ){
@@ -288,7 +267,7 @@ function onUserDisconnected(user){
     if(file_data){
         for(var i = 0; i<file_data.length;i++){
             if(file_data[i].id == user.id ){  
-              //variable fields (un poco hardcoded...) quizas mejor metiendole el user entero
+              //variable fields 
               file_data[i].position = user.position;
               file_data[i].target_position = user.target_position;
               file_data[i].room_id = user.room_id;
@@ -303,6 +282,7 @@ function onUserDisconnected(user){
     }
 }
 
+//Helper function to read json files
 function readFileJSON(){
     try {
         var data = fs.readFileSync(users_json, 'utf8')
@@ -313,6 +293,7 @@ function readFileJSON(){
       }
 }
 
+//Send tick to all the rooms to close the doors every 10 seconds
 function doorTick(){
     for(var i in WORLD.rooms){
           var room = WORLD.rooms[i];
@@ -335,13 +316,13 @@ function doorTick(){
 
 setInterval(doorTick, 10000);
 
+//Send tick to the room state to every user every second
 function Tick(){
 
     for(var i in WORLD.rooms){
 
         var room = WORLD.rooms[i];
         var users_info = room.getRoomUsers();
-        //Send data to users on the room
         for(var j = 0; j< room.room_users.length; j++){
 
             var user_id = room.room_users[j];

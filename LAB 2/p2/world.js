@@ -105,12 +105,11 @@ var world_demo = {
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:-2688, y:0, type:"bg"},
-                {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, from_room:0, target_room:1, id:1},
-                {src:"img/door_close.png", x:650, y:250, type:"door",state:false, from_room:0,target_room:2, id:2},
-                {src:"img/door_close.png", x:1250, y:250, type:"door",state:false, from_room:0,target_room:3, id:3},
-                {src:"img/lampara.png", x:350, y:250, type:"lampara", state:false, id:1},
-                {src:"img/lampara.png", x:850, y:250, type:"lampara", state:false, id:2}
-                //{src:"img/hall.png", x:-500, y:0}
+                {src:"img/door_close.png", x:500, y:250, type:"door" ,state:false, from_room:0, target_room:1, id:1},
+                {src:"img/door_close.png", x:1500, y:250, type:"door",state:false, from_room:0,target_room:2, id:2},
+                {src:"img/door_close.png", x:2500, y:250, type:"door",state:false, from_room:0,target_room:3, id:3},
+                {src:"img/lampara.png", x:1000, y:250, type:"lampara", state:false, id:1},
+                {src:"img/lampara.png", x:2000, y:250, type:"lampara", state:false, id:2}
             ]
         },
         {
@@ -120,8 +119,8 @@ var world_demo = {
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:-2688, y:0, type:"bg"},
-                {src:"img/alfombra.png", x:0, y:50, type:"bg"},
-                {src:"img/door_close.png", x:50, y:250, type:"door" ,state:false, from_room:1, target_room:0, id:1}        
+                {src:"img/alfombra.png", x:400, y:600, type:"bg"},
+                {src:"img/door_close.png", x:500, y:250, type:"door" ,state:false, from_room:1, target_room:0, id:1}        
             ]
         },
         {
@@ -131,8 +130,9 @@ var world_demo = {
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:-2688, y:0, type:"bg"},
-                {src:"img/cuadro_spiderman.png", x:0, y:600, type:"bg"},
-                {src:"img/door_close.png", x:650, y:250, type:"door" ,state:false, from_room:2,target_room:0, id:1}
+                {src:"img/cuadro_japon.png", x:500, y:150, type:"bg"},
+                {src:"img/cuadro_spiderman.png", x:2500, y:150, type:"bg"},
+                {src:"img/door_close.png", x:1500, y:250, type:"door" ,state:false, from_room:2,target_room:0, id:1}
             ]
         },
         {
@@ -142,8 +142,9 @@ var world_demo = {
                 {src:"img/background.png", x:2688, y:0, type:"bg"},
                 {src:"img/background.png", x:-1344, y:0, type:"bg"},
                 {src:"img/background.png", x:-2688, y:0, type:"bg"},
-                {src:"img/cuadro_japon.png", x:0, y:600, type:"bg"},
-                {src:"img/door_close.png", x:1250, y:250, type:"door" ,state:false, from_room:3, target_room:0, id:1}
+                {src:"img/cuadro_spiderman.png", x:500, y:150, type:"bg"},
+                {src:"img/cuadro_japon.png", x:1500, y:150, type:"bg"},
+                {src:"img/door_close.png", x:2500, y:250, type:"door" ,state:false, from_room:3, target_room:0, id:1}
             ]
         }
     ],

@@ -1,16 +1,31 @@
+//maps a value from one domain to another
+function map_range( value, low1, high1, low2, high2) {
+	var range1 = high1 - low1;
+	var range2 = high2 - low2;
+    return low2 + range2 * (value - low1) / range1;
+};
+
 var LOGIC = {
     input_text: null,
     send_button: null,
+    emoji_button: null,
+    emoji_table: null,
+    emojis: null,
 
     init: function(){
         this.input_text = document.querySelector("input.input");
         this.send_button = document.querySelector("button.buttonSend");
+        this.emoji_button = document.querySelector(".emojiButton");
+        this.emoji_table = document.querySelector(".emojisTable");
+        this.emojis = document.querySelectorAll(".emojis")
+        
+
         //bind events
         this.input_text.addEventListener("keydown", this.onKeyDown.bind(this));
         this.send_button.addEventListener("click", this.processInput.bind(this));
+        this.emoji_button.addEventListener("click", this.displayEmojiTable.bind(this));
+        this.inputAddEmoji();
 
-        //TEST TICK
-        //setInterval(this.tick.bind(this), 500);
     },
 
     update: function(dt){
@@ -22,7 +37,7 @@ var LOGIC = {
         }
     },
     
-    tick: function(){
+    update_message: function(){
         if(WORLD.local_user){
         var update = {
             type: "user_update",
@@ -31,51 +46,56 @@ var LOGIC = {
         CLIENT.send(update);
       }
     },
-
+    //linear interpolation
     lerp: function(a,b,f)
     {
-	return a * (1-f) + b * f;
+	    return a * (1-f) + b * f;
     },
 
     updateUserInput: function( dt, user )
     {
+        var diff = 0;
         user.anim = "idle";
-
-        var diff = Math.abs(user.position[0] - user.target_position[0]);
-
-        if(user.position[0] < user.target_position[0] && diff > 5){
-            user.anim = "walk";
-            user.facing = FACE_RIGHT;
-            user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
-        } else if(user.position[0] > user.target_position[0] && diff > 5) {
+        if((user.target_position[0] - user.position[0])  < 0){
             user.anim = "walk";
             user.facing = FACE_LEFT;
-            user.position[0] = this.lerp( user.position[0], user.target_position[0], 0.01 );
+            //user.target_room = user.room_position + user.target_position[0];
+            diff = Math.abs( user.position[0] - user.target_position[0]);
+            if ( diff > 1 && user.position[0] >= GFX.min_room_pos){
+                user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
+                user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
+            }else {
+                user.anim = "idle";
+                
+            } 
+            
         }
-        else {
-            user.anim = "idle";
-            user.position[0] = user.target_position[0];
+        else if((user.target_position[0] - user.position[0]) > 0){
+            user.anim = "walk";
+            user.facing = FACE_RIGHT;
+            //user.target_room = user.room_position + user.target_position[0];
+            diff = Math.abs( user.position[0] - user.target_position[0]);
+            if ( diff > 1 && user.position[0] <= GFX.max_room_pos){
+                user.position[0] =  this.lerp( user.position[0], user.target_position[0], 0.05 );
+                user.position[1] =  map_range(user.position[0],-100,100,0,GFX.canvas.width);
+            }else {
+                user.anim = "idle";
+                
+            } 
         }
 
-       
-        
     },
-    //ONLY FOR TESTING
-    changeRoomRight(){
+    //Change room message
+    changeRoom(target_room){
         var msg = {
             type: "change_room",
-            room_id: WORLD.local_user.room_id + 1,
+            room_id: target_room
         }
         CLIENT.send(msg);
+        GFX.clearChat();
     },
-    changeRoomLeft(){
-        var msg = {
-            type: "change_room",
-            room_id: WORLD.local_user.room_id - 1,
-        }
-        CLIENT.send(msg);
-    },
-    //END OF TESTING
+
+    //Send text on enter key
     onKeyDown: function(e)
     {
         if(e.code == "Enter"){
@@ -94,6 +114,7 @@ var LOGIC = {
             this.addText(str);
         }
     },
+    //send text message
     addText: function(str)
     {
         var msg = {
@@ -107,6 +128,24 @@ var LOGIC = {
         GFX.displayText(msg, CLIENT.name);
 
     },
+    //emoji table
+    displayEmojiTable: function(){
+        if(this.emoji_table.style.display == "none"){
+            this.emoji_table.style.display = "";
+        }else{
+            this.emoji_table.style.display = "none";
+        }
+    },
+    //add emoji
+    inputAddEmoji: function(){           
+    
+        for (let i = 0; i < this.emojis.length; i++) {
+            this.emojis[i].addEventListener("click", function(){
+                this.input_text.value = this.input_text.value + this.emojis[i].innerHTML;
+            }.bind(this));
+        }
+    },
+    //Update user
     UpdateUserInfo: function(user_info){
         var user = WORLD.users_by_id[user_info.id];
         if(!user)
@@ -118,6 +157,7 @@ var LOGIC = {
         user.fromJSON(user_info);
         return user;
     },
+    //On message received perform different acctions depending on the protocol
     onMessage: function(msg)
     {
         if(msg.type == "connection_error"){
@@ -125,7 +165,7 @@ var LOGIC = {
             var chat_app = document.getElementById("chatApp");
             var error = document.getElementById("error-display");
             error.style.display = "block";
-            login.style.height = "550px";
+            login.style.height = "635px";
             login.style.display = "";
             chat_app.style.display = "none";
             CORE.server.close();
@@ -145,6 +185,10 @@ var LOGIC = {
                 WORLD.rooms[msg.room.id] = room;
             }
             room.fromJSON( msg.room);
+        }
+        if (msg.type == "change_object"){
+            var room = WORLD.rooms[msg.room.id];
+            room.fromJSON(msg.room);
         }
         if ( msg.type == "text"){
             GFX.displayText(msg, CLIENT.name);
@@ -176,53 +220,91 @@ var LOGIC = {
             }
         }
        
-
-    
-        /*
-        if ( msg.type == "text"){
-            displayMessageSend(msg);
-        }    
-        else if (msg.type == "position"){
-            var new_user = {};
-            new_user.id = msg.id;
-            new_user.position_x = msg.position_x;
-            addUserCanvas(new_user);
-        }
-        else if (msg.type == "position_history"){
-            for (let i = 0; i < msg.content.length; i++) {
-                var previous_user = {};
-                previous_user.id = msg.content[i].id;
-                previous_user.position_x = msg.content[i].position_x;
-                addUserCanvas(previous_user);
-            }
-        }
-        */
     },
+    //check if objects are interactive to perform an action
     checkObjects: function(mouse_x, mouse_y){       
         var centerx = GFX.canvas.width * 0.5;
-
+        centerx -= map_range(WORLD.local_user.position[0],-100,100,0,GFX.canvas.width);
         var room = WORLD.rooms[WORLD.local_user.room_id];
         for (var i = 0; i < room.sprites.length; i++){
-            if(room.sprites[i].src == "img/door_close.png"){
-                var object = room.sprites[i];
-                centerx -= WORLD.local_user.position[0];
-                var img = IMAGES[object.src];
-                var w = img.width;
-                var h = img.height;
-                if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
-                    console.log("touching object " + object.src);
-                    var a = {
-                        src:"img/door_open.png",
-                        x:50, 
-                        y:250
-                    }
-                    WORLD.rooms[WORLD.local_user.room_id].sprites.push(a);                  
-                }
-
-            }
-            
+            var sprite = room.sprites[i];
+            if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"door"))
+                {
+                    this.changeObject(sprite);
+                    this.changeRoom(sprite.target_room);  
+                    return true; 
+                } 
+            if(this.checkObjectConditions(centerx,mouse_x,mouse_y,sprite,"lampara")){
+                this.changeObject(sprite);
+                return true;
+            }         
         }
-    }
+        return false
+    },
+    //check objects helper function
+    checkObjectConditions: function(centerx,mouse_x,mouse_y,sprite,type){
+        if(sprite.type == type){ 
+            var object = sprite;
+            var img = IMAGES[object.src];
+            var w = img.width;
+            var h = img.height;
+            if (mouse_x >= (object.x + centerx) && mouse_x <= (object.x + w + centerx) && mouse_y >= object.y && mouse_y <= (object.y + h)){
+                return true;         
+            }
+            else{
+                return false;
+            }
+        }
+    },
+    //send change object message
+    changeObject: function(sprite){
+        var msg = {
+            type: "change_object",
+            object: sprite
+        }
+        CLIENT.send(msg);
+    },
+    //compute room width
+    roomWidth: function(){
+        var min_pos = 1000000;
+        var max_pos = -1000000;
+
+        var min_width = 1000000;
+        var max_width = -1000000;
+
+
+        var total_background = 0;
+        var room = WORLD.rooms[WORLD.local_user.room_id];
+        console.log("Room: " + JSON.stringify(room))
+        for (var i = 0; i < room.sprites.length; i++){
+            var sprite = room.sprites[i];
+            if(sprite.type == "bg"){
+                var background = room.sprites[i];
+                var img = IMAGES[background.src];
+                var w = img.width;
+                //hack para que solo coja los fondos test
+                if(w > 1000){
+                    if (sprite.x <= min_pos){
+                        min_pos = sprite.x;
+                        min_width = w;
+                    }
+                    if (sprite.x >= max_pos){
+                        max_pos = sprite.x;
+                        max_width = w;
+                    }
+                    total_background += w;
+            }
+            }
+        }
+        var min_room_pos = min_pos + (min_width / 2);
+        var max_room_pos = max_pos + (max_width / 2);
+
+        GFX.min_room_pos = map_range(min_room_pos, 0, GFX.canvas.width, -100, 100);
+        GFX.max_room_pos = map_range(max_room_pos, 0, GFX.canvas.width, -100, 100);
+
+        GFX.room_width = total_background;
+        return total_background;
+    },
 }
 
 CORE.modules.push(LOGIC);

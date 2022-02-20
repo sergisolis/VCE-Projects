@@ -3,7 +3,9 @@ var CORE = {
     last_time:null,
     canvas: null,
     server: null,
+    avatar_selector: null,
     login_button: null,
+    chat_zone: null,
     mouse_pos: [0,0],
     
     modules: [],
@@ -14,24 +16,20 @@ var CORE = {
     init: function(){
         this.last_time = performance.now();
         this.canvas = document.querySelector("#canvas");
+        this.avatar_selector = document.getElementById("avatar-select");
         this.login_button = document.querySelector("#login input[type='submit']");
+        this.chat_zone = document.querySelector(".chatZone");
 
         GFX.init(this.canvas);
         WORLD.init();
         LOGIC.init();
-        /*
-        CLIENT.init(this.server);
-        
-        */
 
         //bind events
+        this.avatar_selector.addEventListener("click", this.selectAvatar.bind(this));
         this.login_button.addEventListener("click", this.login.bind(this));
         this.canvas.addEventListener("mousedown", this.processMouse.bind(this));
         this.canvas.addEventListener("mousemove", this.processMouse.bind(this));
         this.canvas.addEventListener("mouseup", this.processMouse.bind(this));
-        //TEST CHANGE ROOM
-        document.body.addEventListener("keydown", this.processKey.bind(this));
-        //END TEST
         this.loop();
     },
 
@@ -43,8 +41,8 @@ var CORE = {
         var login_password = document.querySelector("#login input[type='password']").value;
         var login_avatar_id = parseInt(document.querySelector("#login #avatar-select").value);
                 
-        if(login_name != "" && login_password != ""){  //si los campos de inicio de sesión están rellenados 
-            //oculta login y muestra chat
+        if(login_name != "" && login_password != ""){ 
+
             if (login.style.display == "") {
                 login.style.display = "none";
             }
@@ -56,6 +54,19 @@ var CORE = {
         } 
     },
 
+    selectAvatar: function(){
+        var length = this.avatar_selector.length;
+        var option = this.avatar_selector.value;
+        for (let i = 1; i <= length; i++) {
+            var avatar_img = document.getElementById("avatar" + i);
+            if (i == option){
+                avatar_img.style.display = "";
+            }else{
+                avatar_img.style.display = "none";
+            }
+        }
+    },
+
     draw: function() 
     {
         GFX.draw();
@@ -64,17 +75,6 @@ var CORE = {
     update: function(dt){
         LOGIC.update(dt);
     },
-    //TEST
-    processKey: function(e){
-        if(e.key == "ArrowRight"){
-            LOGIC.changeRoomRight();
-        }
-        if(e.key == "ArrowLeft"){
-            LOGIC.changeRoomLeft();
-
-        }
-    },
-    //END TEST
     processMouse: function(e){
         var rect = this.canvas.getBoundingClientRect();
         var canvas_x =  this.mouse_pos[0] = e.clientX - rect.left;
@@ -82,37 +82,33 @@ var CORE = {
     
         if(e.type == "mousedown")
         {
-            var target_x = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
 
-            this.mouse_pos[0] = target_x;
-            WORLD.local_user.target_position[0] = target_x;
+            if(!LOGIC.checkObjects(canvas_x, canvas_y))
+                {
+                    var target_x = canvas_x - (GFX.sprite_width / 2 * GFX.scale);
 
-            LOGIC.checkObjects(canvas_x, canvas_y);
-            //send to server to update my position to all users
-            LOGIC.tick();
+                    var room_width = LOGIC.roomWidth();
+                    GFX.room_width = room_width;
+                    console.log(room_width);
+        
+                    var canvas_pos = map_range(target_x, 0, GFX.canvas.width, -100, 100);
+                    var room_pos = map_range(target_x, 0, room_width, 0, 100);
+                    console.log("X mapeada: " + canvas_pos);
 
+                    this.mouse_pos[0] = canvas_pos;
+                    WORLD.local_user.target_position[0] = WORLD.local_user.position[0] + canvas_pos;
 
+                    LOGIC.update_message();
+                }
  
         }
-        else if(e.type == "mousemove")
-        {
-    
-        }
-        else //mouseup
-        {
-        }
+
     },
 
     loop: function(){
         
         this.draw();
-        /*
-        if(users.length){
-                for (let i = 0; i < users.length; i++) {
-                    draw_other(i);
-                }  
-        }
-        */
+
         //to compute seconds since last loop
         var now = performance.now();
         //compute difference and convert to seconds

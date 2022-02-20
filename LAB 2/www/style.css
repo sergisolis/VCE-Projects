@@ -4,6 +4,20 @@
   box-sizing: border-box;
   font-family: "Press Start 2P", cursive;
 }
+/* Definición para botones y iconos*/
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+i {
+  color: white;
+  font-size: 15px;
+}
 
 :root {
   --background-color: #06080d;
@@ -40,7 +54,7 @@ body {
 #login {
   position: relative;
   width: 350px;
-  height: 500px;
+  height: 585px;
   background: #052830;
   color: var(--font-color);
   padding: 50px 30px;
@@ -51,9 +65,9 @@ body {
   border-style: solid;
   border-color: var(--border-color);
 }
-#login #error-display{
+#login #error-display {
   color: var(--disconected-color);
-  display:none;
+  display: none;
   text-align: center;
 }
 
@@ -104,6 +118,14 @@ body {
   color: var(--font-black);
 }
 
+#login img {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  height: 85px;
+}
+
 /* ------------------------------------ */
 
 #chatApp {
@@ -126,6 +148,7 @@ body {
 #chatApp #chatContainer {
   display: grid;
   grid-template-rows: 60px calc(100% - 120px) 60px;
+  overflow-y: auto;
 }
 
 #chatApp #chatContainer .chatHeader {
@@ -138,6 +161,24 @@ body {
 #chatApp #chatContainer .chatZone {
   background: white;
   border: 2px solid white;
+  width: 100%;
+  overflow-y: auto;
+}
+
+#chatApp #chatContainer .chatZone .chat {
+  position: relative;
+}
+
+#chatApp #chatContainer .chatZone .msg {
+  max-width: 99%;
+  word-wrap: break-word;
+  margin: 10px 0;
+  line-height: 50px;
+  color: white;
+  background: #e4be7a;
+  padding-left: 20px;
+  line-height: 35px;
+  border-radius: 15px 15px 15px 0px;
 }
 
 #chatApp #chatContainer .textZone {
@@ -148,4 +189,45 @@ body {
   display: grid;
   grid-template-columns: 4% 92% 4%;
   border-bottom-right-radius: 15px;
+}
+
+#chatApp #chatContainer .textZone .emojiDiv .emojisTable ul {
+  position: absolute;
+  background: #002830;
+  border-radius: 15px;
+  border-width: 1px;
+  border-style: solid;
+  padding: 10px;
+  width: auto;
+  top: -105%;
+  left: 0.5%;
+}
+
+#chatApp #chatContainer .textZone .emojiDiv .emojisTable ul:after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 10%;
+  margin-left: -18px;
+  width: 0;
+  height: 0;
+  border-top: solid 10px var(--selected-chat-color);
+  border-left: solid 10px transparent;
+  border-right: solid 10px transparent;
+}
+
+#chatApp #chatContainer .textZone .emojiDiv .emojisTable .emojisGrid li {
+  display: inline;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#chatApp #chatContainer .textZone .input {
+  width: 99%;
+  outline: none;
+  border: none;
+  height: 25px;
+  font-size: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
 }

@@ -47,3 +47,4 @@ APP WORKFLOW
             Sends a message to the other users of the room that are at maximum at 300 distance.
         connection_error
             Sends an error message and display an error on the login layout.
+
