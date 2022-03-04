@@ -1,19 +1,83 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="style.css">
 
-<title>ECV</title>
+	<title>ECV</title>
 	<style type='text/css'>
 		html, body { width: 100%; height: 100%; margin: 0; padding: 0 }
 	</style>
+	
+</head>
+<body>
+	<button primary large id="chat_button">
+		<ion-icon name="chatbubbles-outline"></ion-icon>
+	</button>
+
+	<div id="chat">
+		<!-- Perfil y iconos -->
+		<div class="chatHeader">
+			<h3 id="chatName">Global Chat</h3>                
+		</div>
+		<!-- Zona de mensajes -->
+		<div class="chatZone">
+			<div id="messages" class= "messages">
+			</div>
+			
+		</div>
+		<!-- Zona de escritura -->
+		<div class="textZone">
+			
+			<div class="emojiDiv">
+				<button class="emojiButton" type="">
+					<!-- emojis -->
+					<i class="fas fa-laugh"></i>
+				</button>
+				<div class="emojisTable" style="display: none;">
+					<ul class="emojisGrid">    
+						<li class="emojis">😃</li>
+						<li class="emojis">😂</li>     
+						<li class="emojis">😘</li>
+						<li class="emojis">😜</li>
+						<li class="emojis">❤️</li>
+						<li class="emojis">👍🏼</li>
+					</ul>
+				</div>
+			</div>
+			<div>
+				<input type="text" class="input" placeholder="Escribe">
+			</div>
+			
+			<div>
+				<button class="buttonSend">
+					<ion-icon name="paper-plane-outline"></ion-icon>
+				</button>
+			</div>
+			
+		</div>
+
+
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
 	<script type="text/javascript" src="js/extra/gl-matrix-min.js"></script>
 	<script type="text/javascript" src="js/extra/litegl.js"></script>
 	<script type="text/javascript" src="js/extra/rendeer.js"></script>
 	<script type="text/javascript" src="js/extra/wbin.js"></script>
 	<script type="text/javascript" src="js/extra/walkArea.js"></script>
-	<script type="text/javascript" src="js/code.js"></script>
-</head>
+	<script type="text/javascript" src="js/hardcoded/code.js"></script>
+
+	<script src="js/core.js"></script>
+	<script src="js/logic.js"></script>
+	<script src="js/client.js"></script>
+	<script src="js/gfx.js"></script>
+	<script src="js/world.js"></script>
+	<script>CORE.init();</script>
+</body>
 <body>
 <script>init();</script>
 </body>

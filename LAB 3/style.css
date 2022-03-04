@@ -1,0 +1,123 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Press Start 2P", cursive;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+#chat_button {
+  position: absolute;
+  right: 3%;
+  top: 3%;
+  color: white;
+}
+
+ion-icon {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#chat {
+  position: absolute;
+  right: 3%;
+  top: 10%;
+  display: grid;
+  height: 600px;
+  grid-template-rows: 60px calc(100% - 120px) 60px;
+  border-radius: 15px;
+  overflow-y: auto;
+}
+
+#chat .chatHeader {
+  background: #052830;
+  padding-left: 10px;
+  padding-top: 20px;
+  color: white;
+}
+
+#chat .chatZone {
+  background: white;
+  border: 2px solid white;
+  width: 100%;
+  overflow-y: auto;
+}
+
+#chat .chatZone .chat {
+  position: relative;
+}
+
+#chat .chatZone .msg {
+  max-width: 99%;
+  word-wrap: break-word;
+  margin: 10px 0;
+  line-height: 50px;
+  color: white;
+  background: #e4be7a;
+  padding-left: 20px;
+  line-height: 35px;
+  border-radius: 15px 15px 15px 0px;
+}
+
+#chat .textZone {
+  background: #052830;
+  position: relative;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 4% 92% 4%;
+  border-bottom-right-radius: 15px;
+}
+
+#chat .textZone .emojiDiv .emojisTable ul {
+  position: absolute;
+  background: #002830;
+  border-radius: 15px;
+  border-width: 1px;
+  border-style: solid;
+  padding: 10px;
+  width: auto;
+  top: -105%;
+  left: 0.5%;
+}
+
+#chat .textZone .emojiDiv .emojisTable ul:after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 10%;
+  margin-left: -18px;
+  width: 0;
+  height: 0;
+  border-top: solid 10px var(--selected-chat-color);
+  border-left: solid 10px transparent;
+  border-right: solid 10px transparent;
+}
+
+#chat .textZone .emojiDiv .emojisTable .emojisGrid li {
+  display: inline;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#chat .textZone .input {
+  width: 99%;
+  outline: none;
+  border: none;
+  height: 25px;
+  font-size: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#chat .textZone .buttonSend ion-icon {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
