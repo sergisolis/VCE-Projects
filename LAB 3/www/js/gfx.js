@@ -29,13 +29,16 @@ var GFX = {
       height: window.innerHeight,
     });
     this.renderer = new RD.Renderer(this.context);
-    document.body.appendChild(this.renderer.canvas); //attach
+    var app = document.getElementById("app");
+    app.appendChild(this.renderer.canvas); //attach
     this.scene = new RD.Scene();
     this.renderer.setDataFolder("data");
     this.renderer.autoload_assets = true;
+    //create camera
     this.camera = new RD.Camera();
     this.camera.perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 1000);
     this.camera.lookAt([0, 40, 100], [0, 20, 0], [0, 1, 0]);
+    //walking area
     this.walk_area = new WalkArea();
     this.walk_area.fromJSON({
       areas: [
@@ -84,12 +87,12 @@ var GFX = {
     this.debug_ball.layers = DEBUG_BIT;
     this.scene.root.addChild(this.debug_ball);
     this.anim_idle = new RD.SkeletalAnimation();
-    this.anim_idle.load("data/girl/idle.skanim");
+    this.anim_idle.load("girl/idle.skanim");
     this.anim_walk = new RD.SkeletalAnimation();
-    this.anim_walk.load("data/girl/walking.skanim");
+    this.anim_walk.load("girl/walking.skanim");
 
     var room = new RD.SceneNode({ scaling: 40 });
-    room.loadGLTF("data/room.gltf");
+    room.loadGLTF("room.gltf");
     room.layers = ROOM_BIT;
     this.scene.root.addChild(room);
     this.loop();

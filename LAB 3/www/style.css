@@ -13,6 +13,108 @@ button {
   justify-content: center;
 }
 
+body {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  /*background: url(img/fondo.jpg) no-repeat center top;*/
+  background-size: cover;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+:root {
+  --background-color: #06080d;
+  --border-color: hsl(0 0% 100% / 0.5);
+  --color-primary: #645d5e;
+  --font-color: #fff;
+  --font-black: #000;
+  --font-title: #ec5d73;
+  --title-color: #fff;
+  --button-color: #f08f9e;
+  --box-color: #052830;
+  --button-hover-color: #ffc107;
+  --disconected-color: #ec4040;
+  --typing-box-color: #323739;
+  --typing-box-font-color: #828689;
+  --selected-chat-color: #2d3134;
+  --message-contact: #373737;
+  --message-myself: #418086;
+}
+
+/* LOGIN / REGISTER */
+#login, #register {
+  position: relative;
+  width: 350px;
+  height: 585px;
+  background: #052830;
+  color: var(--font-color);
+  padding: 50px 30px;
+  border-radius: 15px;
+  display: grid;
+  grid-gap: 20px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-color);
+}
+#login #error-display,#register #error-display {
+  color: var(--disconected-color);
+  display: none;
+  text-align: center;
+}
+
+#login h3, #register h3 {
+  margin: 0;
+  padding: 5px 0 20px;
+  text-align: center;
+  font-size: 22px;
+  color: var(--font-title);
+}
+
+#login label,#register label {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  display: block;
+}
+
+#login input, #register input {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+#login input[type="name"],
+#login input[type="password"]
+#register input[type="name"],
+#register input[type="password"] {
+  border: none;
+  border-bottom: 1px solid var(--font-color);
+  background: transparent;
+  outline: none;
+  height: 40px;
+  color: var(--font-color);
+  font-size: 16px;
+}
+
+.submitButton{
+  border: none;
+  outline: none;
+  height: 40px;
+  background: var(--button-color);
+  color: var(--font-color);
+  font-size: 18px;
+  border-radius: 20px;
+}
+
+.submitButton:hover{
+  cursor: pointer;
+  background: var(--button-hover-color);
+  color: var(--font-black);
+}
+
+/* CHAT */
+
 #chat_button {
   position: absolute;
   right: 3%;
