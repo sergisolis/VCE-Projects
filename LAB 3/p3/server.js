@@ -17,16 +17,14 @@ initializeApp({
 
 const db = getFirestore();
 
-async function getAllUsers(request,response) {
+async function getAllUsers() {
     const querySnapshot = await db.collection('users').get()
     const users = querySnapshot.docs.map (doc => ({
         id: doc.id,
         ...doc.data(),
     }));
 
-    response.writeHead(200, { "Content-Type": "application/json" })
-    response.write(JSON.stringify(users))
-    response.end()
+    return users;
 }
 
 async function updateUser() {
@@ -60,7 +58,20 @@ async function bodyParser(request) {
         await bodyParser(request)
         
 
-        //login function
+        //login function we must separate login/token
+        if(request.body.hasOwnProperty('token')){
+            var token = request.body.token;
+            var users = await getAllUsers();
+            for(var i=0; i < users.length; i++){
+                if(token == users[i].token){
+                    var data = users[i];
+                    console.log(data);
+                }
+            }
+        }
+        if(request.body.hasOwnProperty('name') && request.body.hasOwnProperty('password')){
+
+        }
 
         response.writeHead(200, { "Content-Type": "application/json" })
         response.write(JSON.stringify(request.body))
@@ -78,13 +89,13 @@ async function bodyParser(request) {
             
             //register function 
             const {name, password} = request.body
-    
+            const token = "";
 
             await db.collection('users').add({
                 name,
                 password,
             });
-            
+
             response.writeHead(200, { "Content-Type": "application/json" })
             response.write(JSON.stringify(request.body))
             response.end()
@@ -113,13 +124,16 @@ const server = http.createServer(async(request, response) => {
             if (url === "/register") {
                 register(request,response);
             }
+            if (url === "/token") {
+              login(request,response);
+            }
             break
       
-          case "GET":
+          /*case "GET":
             if (url === "/") {
                 getAllUsers(request,response);
             }
-            break
+            break*/
       
           case "PUT": //actualizar cuando salga de la app?
             break

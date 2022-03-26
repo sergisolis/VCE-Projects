@@ -20,6 +20,8 @@ var CORE = {
     this.login_form = document.querySelector("#login form");
     this.register_form = document.querySelector("#register form");
     this.chat_zone = document.querySelector(".chatZone");
+    this.enter_zone = document.getElementById("enterZone");
+    this.app = document.getElementById("app");
 
     GFX.init();
     //WORLD.init();
@@ -38,6 +40,30 @@ var CORE = {
     this.login_form.addEventListener("submit", this.login.bind(this));
     this.register_form.addEventListener("submit", this.register.bind(this));
     //this.loop();
+
+    //check local storage
+    if(localStorage.getItem("token")){
+      this.useToken();
+      this.app.style.display = "";
+      this.enter_zone.style.display = "none";
+      
+    }
+  },
+
+  useToken: function() {
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("POST", this.http_url+"token");
+    
+
+    var data = {
+      "token": localStorage.getItem('token'),
+    }
+    var json = JSON.stringify(data);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send(json)
+
   },
 
   register: function () {
@@ -83,6 +109,9 @@ var CORE = {
       var json = JSON.stringify(data);
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.send(json)
+
+      //cuando obtenga la respuesta
+      //localStorage.setItem('token', response.token);
 
     } else {
 
