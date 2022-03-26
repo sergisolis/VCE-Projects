@@ -57,29 +57,37 @@ async function bodyParser(request) {
     try {
         await bodyParser(request)
         
-
+        var data = null;
         //login function we must separate login/token
         if(request.body.hasOwnProperty('token')){
             var token = request.body.token;
             var users = await getAllUsers();
             for(var i=0; i < users.length; i++){
                 if(token == users[i].token){
-                    var data = users[i];
-                    console.log(data);
+                    data = users[i];
                 }
             }
         }
         if(request.body.hasOwnProperty('name') && request.body.hasOwnProperty('password')){
-
+            var name = request.body.name;
+            var password = request.body.password;
+            var users = await getAllUsers();
+            for(var i=0; i < users.length; i++){
+                if(name == users[i].name && password == users[i].password){
+                    data = users[i];
+                    data.token = Math.random().toString(36);
+                }
+            }
         }
 
-        response.writeHead(200, { "Content-Type": "application/json" })
-        response.write(JSON.stringify(request.body))
-        response.end()
+        if(data){
+        exitMessage(response,data);
+        }else{
+            var error = {error: "invalid credentials"};
+            errorMessage(response,error);
+        }
       } catch (err) {
-        response.writeHead(400, { "Content-type": "text/plain" })
-        response.write("Invalid body data was provided", err.message)
-        response.end()
+        errorType(response,err);
       }
     }
 
@@ -87,24 +95,54 @@ async function bodyParser(request) {
         try {
             await bodyParser(request)
             
+            //check if user already exists
+            var exists = false;
+            var users = await getAllUsers();
+            var name = request.body.name;
+
+            for(var i=0; i < users.length; i++){
+                if(name == users[i].name){
+                    exists = true;
+                }
+            }
             //register function 
+            if(!exists){
             const {name, password} = request.body
             const token = "";
 
             await db.collection('users').add({
                 name,
                 password,
+                token,
             });
 
-            response.writeHead(200, { "Content-Type": "application/json" })
-            response.write(JSON.stringify(request.body))
-            response.end()
+            var success = {data: "user added to database"};
+            exitMessage(response,success)
+            }
+            else{
+                var error = {error: "user already exists"};
+                errorMessage(response,error);
+            }
           } catch (err) {
-            response.writeHead(400, { "Content-type": "text/plain" })
-            response.write("Invalid body data was provided", err.message)
-            response.end()
+            errorType(response,err);
           }
         }
+
+    async function exitMessage(response,data){
+        response.writeHead(200, { "Content-Type": "application/json" })
+        response.write(JSON.stringify(data))
+        response.end()
+    }
+    async function errorType(response,err){
+        response.writeHead(400, { "Content-type": "text/plain" })
+        response.write("Invalid body data was provided", err.message)
+        response.end()
+    }
+    async function errorMessage(response,error){
+        response.writeHead(400, { "Content-Type": "application/json" })
+        response.write(JSON.stringify(error))
+        response.end()
+    }
 
 //Global consts
 
@@ -124,9 +162,7 @@ const server = http.createServer(async(request, response) => {
             if (url === "/register") {
                 register(request,response);
             }
-            if (url === "/token") {
-              login(request,response);
-            }
+
             break
       
           /*case "GET":

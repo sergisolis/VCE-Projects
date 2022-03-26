@@ -17,8 +17,8 @@ var CORE = {
   init: function () {
     this.last_time = performance.now();
     this.avatar_selector = document.getElementById("avatar-select");
-    this.login_form = document.querySelector("#login form");
-    this.register_form = document.querySelector("#register form");
+    this.login_button = document.querySelector("#login input[type='submit']");
+    this.register_button = document.querySelector("#register input[type='submit']");
     this.chat_zone = document.querySelector(".chatZone");
     this.enter_zone = document.getElementById("enterZone");
     this.app = document.getElementById("app");
@@ -37,8 +37,8 @@ var CORE = {
     //"click",
     //this.selectAvatar.bind(this)
     //);
-    this.login_form.addEventListener("submit", this.login.bind(this));
-    this.register_form.addEventListener("submit", this.register.bind(this));
+    this.login_button.addEventListener("click", this.login.bind(this));
+    this.register_button.addEventListener("click", this.register.bind(this));
     //this.loop();
 
     //check local storage
@@ -54,7 +54,7 @@ var CORE = {
 
     const xhr = new XMLHttpRequest();
 
-    xhr.open("POST", this.http_url+"token");
+    xhr.open("POST", this.http_url+"login");
     
 
     var data = {
@@ -64,11 +64,19 @@ var CORE = {
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(json)
 
+    xhr.onload = () => {
+      console.log(JSON.parse(xhr.response));
+   }
+
+   xhr.onerror = () => {
+    console.error('Request failed.');
+   }
+
   },
 
   register: function () {
-    var register_name = document.querySelector("#register form input[type='text']").value;
-    var register_password = document.querySelector("#register form input[type='password']" ).value;
+    var register_name = document.querySelector("#register input[type='text']").value;
+    var register_password = document.querySelector("#register  input[type='password']" ).value;
 
     if (register_name != "" && register_password != "") {
 
@@ -85,6 +93,14 @@ var CORE = {
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.send(json)
 
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response));
+     }
+
+     xhr.onerror = () => {
+      console.error('Request failed.');
+  }
+
     } else {
 
       console.log("fill the form");
@@ -92,8 +108,8 @@ var CORE = {
     }
   },
   login: function () {
-    var login_name = document.querySelector("#login form input[type='text']").value;
-    var login_password = document.querySelector("#login form input[type='password']" ).value;
+    var login_name = document.querySelector("#login input[type='text']").value;
+    var login_password = document.querySelector("#login input[type='password']" ).value;
 
     if (login_name != "" && login_password != "") {
 
@@ -110,8 +126,15 @@ var CORE = {
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.send(json)
 
-      //cuando obtenga la respuesta
-      //localStorage.setItem('token', response.token);
+    
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response));
+        //localStorage.setItem('token', response.token);
+     }
+
+     xhr.onerror = () => {
+      console.error('Request failed.');
+     }
 
     } else {
 
