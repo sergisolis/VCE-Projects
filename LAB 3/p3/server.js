@@ -17,40 +17,107 @@ initializeApp({
 
 const db = getFirestore();
 
-async function getAllUsers() {
+async function getAllUsers(request,response) {
     const querySnapshot = await db.collection('users').get()
     const users = querySnapshot.docs.map (doc => ({
         id: doc.id,
         ...doc.data(),
     }));
-    console.log(users);
+
+    response.writeHead(200, { "Content-Type": "application/json" })
+    response.write(JSON.stringify(users))
+    response.end()
 }
+
+async function updateUser() {
+
+    const name = test,
+          password = 123;
+
+   // await db.collection('users').update(req.body);
+}
+
+async function bodyParser(request) {
+    return new Promise((resolve, reject) => {
+      let totalChunked = ""
+      request
+        .on("error", err => {
+          console.error(err)
+          reject()
+        })
+        .on("data", chunk => {
+          totalChunked += chunk
+        })
+        .on("end", () => {
+          request.body = JSON.parse(totalChunked)
+          resolve()
+        })
+    })
+  }
+
+  async function login(request,response) {
+    try {
+        await bodyParser(request)
+        
+
+        //login function
+
+        response.writeHead(200, { "Content-Type": "application/json" })
+        response.write(JSON.stringify(request.body))
+        response.end()
+      } catch (err) {
+        response.writeHead(400, { "Content-type": "text/plain" })
+        response.write("Invalid body data was provided", err.message)
+        response.end()
+      }
+    }
+
+    async function register(request,response) {
+        try {
+            await bodyParser(request)
+            
+            //register function 
+            const {name, password} = request.body
+    
+
+            await db.collection('users').add({
+                name,
+                password,
+            });
+            
+            response.writeHead(200, { "Content-Type": "application/json" })
+            response.write(JSON.stringify(request.body))
+            response.end()
+          } catch (err) {
+            response.writeHead(400, { "Content-type": "text/plain" })
+            response.write("Invalid body data was provided", err.message)
+            response.end()
+          }
+        }
+
 //Global consts
 
 const port = 9026;
 const second_port = 9027;
 
 //HTTP Server
-const server = http.createServer((request, response) => {
+const server = http.createServer(async(request, response) => {
     let url = request.url
     let method = request.method
   
     switch (method) {
         case "POST":
             if (url === "/login") {
-              
+              login(request,response);
             }
             if (url === "/register") {
-
+                register(request,response);
             }
             break
       
           case "GET":
             if (url === "/") {
-                response.writeHead(200, { "Content-Type": "application/json" })
-                getAllUsers()
-                response.write(JSON.stringify({ message: "Hello World" }))
-                response.end()
+                getAllUsers(request,response);
             }
             break
       

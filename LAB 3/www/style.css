@@ -17,7 +17,7 @@ body {
   display: flex;
   align-items: center;
   min-height: 100vh;
-  /*background: url(img/fondo.jpg) no-repeat center top;*/
+  background: rgb(34,193,195);
   background-size: cover;
   justify-content: center;
   align-items: center;
@@ -44,21 +44,22 @@ body {
 }
 
 /* LOGIN / REGISTER */
-#login, #register {
+#enterZone {
   position: relative;
-  width: 350px;
-  height: 585px;
+  width: 600px;
+  height: 400px;
   background: #052830;
   color: var(--font-color);
   padding: 50px 30px;
   border-radius: 15px;
   display: grid;
-  grid-gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 60px;
   border-width: 1px;
   border-style: solid;
   border-color: var(--border-color);
 }
-#login #error-display,#register #error-display {
+ #error-display {
   color: var(--disconected-color);
   display: none;
   text-align: center;
@@ -84,9 +85,9 @@ body {
   margin-bottom: 20px;
 }
 
-#login input[type="name"],
-#login input[type="password"]
-#register input[type="name"],
+#login input[type="text"],
+#login input[type="password"],
+#register input[type="text"],
 #register input[type="password"] {
   border: none;
   border-bottom: 1px solid var(--font-color);
