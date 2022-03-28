@@ -90,7 +90,7 @@ var GFX = {
     this.anim_walk.load("data/girl/walking.skanim");
 
     var room = new RD.SceneNode({ scaling: 40 });
-    room.loadGLTF("data/room.gltf");
+    room.loadGLTF("data/gym_t.glb");
     room.layers = ROOM_BIT;
     this.scene.root.addChild(room);
     this.loop();
